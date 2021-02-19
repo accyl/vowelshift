@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+
+  <title>IPA Vowel Chart</title>
+  <meta name="description" content="IPA Vowel Chart">
+  <meta name="author" content="phlaxyr">
+  <script src="vowel.js"></script>
+  <link rel="stylesheet" href="styles.css?v=1.0">
+</head>
+<body onload="init()">
+  <!-- <p id="hw" onmouseover="buttonClick()" onmouseout="buttonClick()"> Hello, World! </p> -->
+  <!-- <div id=idk> -->
+  <!-- canvas id="canvas" width="1000" height="500"> </canvas> -->
+	<!-- <div class=staff> -->
+
+  <!-- <button class="button" onclick="buttonClick()">Button</button> -->
+  <!-- </div> -->
+  <h2>IPA Vowel Chart</h2>
+
+  <div class="voweloverflow">
+
+  	<div class="vowelspace">
+  		<img src="Blank_vowel_trapezoid.png" class="trapezoid">
+      <div class="l front">Front</div>
+      <div class="l central">Central</div>
+      <div class="l back">Back</div>
+  		<div class="l close">Close</div>
+  		<div class="l closemid">Close-mid</div>
+  		<div class="l openmid">Open-mid</div>
+  		<div class="l open">Open</div>
+      <div class="dev">
+        <div class="arbitrarydot" style="--closedness: 2/3; --frontedness: 1/2;">•</div>
+        <div class="arbitrarydot" style="--closedness: 1/3; --frontedness: 1;">•</div>
+        <svg class="arrowsvg" height="100%" width="100%">
+          <!--for some reason height=100% doesn't work, it's barely off-->
+          <defs>
+              <marker id="markerArrow" markerWidth="13" markerHeight="13" refX="9" refY="6"
+                     orient="auto">
+                  <path class="arrowhead" d="M2,2 L2,11 L10,6 L2,2"/>
+              </marker>
+          </defs>
+
+          <line x1="10%" y1="7%" x2="90%" y2="7%" class="arrow" />
+          <line x1="50%" y1="91.5%" x2="90%" y2="91.5%" class="arrow" />
+          <line x1="54%" y1="93"% x2="94%" y2="92.5%" class="arrow"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="credits">Vowel trapezoid chart is by User:Denelson83 and is in public domain. See Wikimedia Commons
+    <a href="https://commons.wikimedia.org/wiki/File:Blank_vowel_trapezoid.png">File:Blank vowel trapezoid.png</a>
+    <br>Elements have been inspired/borrowed from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for interactive IPA,
+    including vowels, consonants, affricates. IPA Vowel Chart is unaffiliated with ipachart.com.
+  </div>
+<!-- <img src='ipa.png'></img> -->
+
+</body>
+</html>
