@@ -6,13 +6,15 @@ function init() {
   }
 }
 
-function addVowel(divclass, str, closedness, frontedness, rounded) {
+function addVowel(divclass, str, closedness, frontedness, rounded, extra='') {
   document.getElementsByClassName("vowelspace")[0].innerHTML
-   += `<div class="${divclass}" style="--closedness: ${closedness}/3; --frontedness: ${frontedness}/2; --rounded: ${rounded};"> ${str}</div>`
+   += `<div class="${divclass}" ${extra} style="--closedness: ${closedness}/3; --frontedness: ${frontedness}/2; --rounded: ${rounded};"> ${str}</div>`
 }
 
 function addBox(char, closedness, frontedness, rounded) {
-  addVowel('positionable interactive IPA', char, closedness, frontedness, rounded);
+  addVowel('movable ixv IPA', char,
+  closedness, frontedness, rounded,
+  `id="v${closedness}-${frontedness}-${rounded}""`);
 }
 function addDot(closedness, frontedness) {
   // document.getElementsByClassName("vowels")[0].innerHTML
@@ -24,12 +26,72 @@ function addDot(closedness, frontedness) {
   addVowel('arbitrarydot', '•', closedness, frontedness, 0.5);
 }
 
-function buttonClick() {
-  console.log("buttonClick()");
+function fragmentize(str) {
+  var frags = []; // an array of string fragments, each of which represent either nonrecognized characters or a vowels
+  // for example ['f','ɜ','rm','ə','r' ]
+  var buildup = '';
+  for(let char of str) {
+    if (validchars.indexOf(char) > -1) { // if char found; if vowel
+      if(buildup) {
+        frags.push(buildup);
+      }
+      frags.push(char);
+      buildup = '';
+    } else { // if char not found; if consonant
+      buildup = buildup + '' + char;
+    }
+  }
+  if(buildup) {
+    frags.push(buildup);
+  }
+  // now we have string fragments
+  return frags;
+}
+function onSubmit() {
+  var querystr = document.getElementsByClassName("analyzer")[0].value;
+  console.log(querystr);
+  var htmlbuild = " ";
+  var frags = fragmentize(querystr);
+  for(let frag of frags) {
+    if(frag.length === 1 && validchars.includes(frag)) {
+      // if it's a lone vowel, box it
+      // TODO: investigate XSS here. I think we should be relatively safe becuase it's only 1 char? (Famous Last Words)
+      htmlbuild += `<span class="alyt" onmouseover="onIn('${frag}')" onmouseout="onOut('${frag}')">${frag}</span>`;
+    } else {
+      htmlbuild += frag;
+    }
+  }
+  console.log(htmlbuild);
+  document.getElementsByClassName("analyte")[0].innerHTML += htmlbuild; // TODO XSS
+
+}
+function onIn(ipachar) {
+  onHover(ipachar, true);
+}
+function onOut(ipachar) {
+  onHover(ipachar, false);
+}
+function onHover(ipachar, doHover) {
+  var clo, fro, ro;
+  [clo, fro, ro] = charToIdx(ipachar);
+  var ele = idxToElement(clo, fro, ro);
+  if(doHover) {
+    if(!ele.classList.contains("hovered")) {
+      ele.classList.add("hovered");
+    }
+  } else {
+    if(ele.classList.contains("hovered")) {
+      ele.classList.remove("hovered");
+    }
+  }
 }
 var rfncstr = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ';
-var validchars = 'iyɨʉɯuɪʏʊʊeøɘɵɤoəəɛœɜɞʌɔææɐɐaɶɑɒ';
+// var validcdhars = 'iyɨʉɯuɪʏʊʊeøɘɵɤoəəɛœɜɞʌɔææɐɐaɶɑɒ';
+var validchars = 'iyɨʉɯuɪʏʊeøɘɵɤoəɛœɜɞʌɔæɐaɶɑɒ';
 function toChar(closedness, frontedness, rounded) {
+  if(rounded === 0.5) {
+    rounded = 0; // correct for 0.5 for both rounded/unrounded
+  }
   var openidx = 6 - closedness * 2;
   // turn the 0.5s into integers. Range: 0-3 -> 0-6 Len: 7
   var backidx = 4 - frontedness * 2;
@@ -70,5 +132,12 @@ function charToIdx(ipachar) {
   } else {
     console.log(`char not found ${char}`);
   }
+}
+function idxToElement(closedness, frontedness, rounded) {
+  if(rounded === 0.5) {
+    // rounded = 0;
+    // nah it's initialized by charToIdx() so it expects 0.5
+  }
+  return document.getElementById(`v${closedness}-${frontedness}-${rounded}`)
 }
 // iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ

@@ -10,13 +10,6 @@
   <link rel="stylesheet" href="styles.css?v=1.0">
 </head>
 <body onload="init()">
-  <!-- <p id="hw" onmouseover="buttonClick()" onmouseout="buttonClick()"> Hello, World! </p> -->
-  <!-- <div id=idk> -->
-  <!-- canvas id="canvas" width="1000" height="500"> </canvas> -->
-	<!-- <div class=staff> -->
-
-  <!-- <button class="button" onclick="buttonClick()">Button</button> -->
-  <!-- </div> -->
   <h2>IPA Vowel Chart</h2>
 
   <div class="voweloverflow">
@@ -49,12 +42,16 @@
       </div>
     </div>
   </div>
-
-  <div class="credits">Vowel trapezoid chart is by User:Denelson83 and is in public domain. See Wikimedia Commons
+  <input type="text" class="analyzer" name="inp" value="# du kʊk ʌp mɔr brɔθ, ˈfɜrmər, fæst ænd lɛt ɪt hit. breɪz, bɔɪl, fraɪ. naʊ ʃoʊ rɛr bɪr kjʊr" placeholder="Paste IPA Symbols Here To Analyze">
+  <input type="button" class="btn" value="submit" onclick="onSubmit()">
+  <div class="analyte"></div>
+  <div class="credits">
+    Sample vowel sentence <a href="https://www.reddit.com/r/linguistics/comments/lml34c/i_have_made_the_quick_brown_fox_of_vowel_phonemes/gnvwerf">by u/Peteat6</a>
+    <br>Vowel trapezoid chart is by User:Denelson83 and is in public domain. See Wikimedia Commons
     <a href="https://commons.wikimedia.org/wiki/File:Blank_vowel_trapezoid.png">File:Blank vowel trapezoid.png</a>
-    <br>Elements have been inspired/borrowed from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for interactive IPA,
+    <br>Elements have been inspired/borrowed from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for ixv IPA,
     including vowels, consonants, affricates. IPA Vowel Chart is unaffiliated with ipachart.com.
-  </div>
+      </div>
 <!-- <img src='ipa.png'></img> -->
 
 </body>

@@ -17,12 +17,12 @@ h2 {
 	font-size: 5em;
 	z-index: -2;
 }
-.positionable, .v {
+.movable, .v {
 	color: black;
 	font-size: 2em;
 	z-index: 3;
 }
-.arbitrarydot, .positionable, .v {
+.arbitrarydot, .movable, .v {
 	position: absolute;
 
 	--rounded: 0.5;
@@ -65,18 +65,31 @@ h2 {
 	visibility: hidden;
 	display: none;
 }
-.vowelspace .interactive {
+.submit {
+
+}
+.analyzer {
+	margin: 3em auto 0.1em auto;
+	width: 50%;
+}
+.analyte {
+	font-size: 1.5em;
+}
+.alyt {
+	background-color: #dfd;
+}
+.vowelspace .ixv {
 	border: 1px solid grey;
 	/* background-color: #15d798; */
 	/* background-color: #17DDE4; */
 	background-color: #f8f8f8;
 }
 
-.interactive {
+.ixv {
 	cursor: pointer;
 }
-.interactive:hover {
-	background-color: #33f !important;
+.ixv:hover, .hovered {
+	background-color: #44f !important;
 	color: #fff;
 }
 .voweloverflow {
@@ -104,7 +117,7 @@ h2 {
 	text-align: center;
 	position: absolute;
 }
-.vowelspace .interactive {
+.vowelspace .ixv {
 	font-size: 1.3em;
 	padding-left: 0.2em;
 	padding-right: 0.2em;
