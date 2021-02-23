@@ -1,16 +1,28 @@
 function init() {
   console.log("init()");
-  for(let char of validchars) {
-    var [closedness, frontedness, rounded] = charToIdx(char);
-    addBox(char, closedness, frontedness, rounded);
+  createBoxes(false);
+}
+function createBoxes(doAdvanced=false) {
+  if(doAdvanced) {
+
+  } else {
+    for(let char of validchars) {
+      var [closedness, frontedness, rounded] = charToIdx(char);
+      addBox(char, closedness, frontedness, rounded);
+    }
   }
 }
-
+function removeAllBoxes() {
+  var boxes = document.getElementsByClassName("movable ixv IPA");
+  while(boxes.length){ // see https://stackoverflow.com/questions/18410450/javascript-not-removing-all-elements-within-a-div
+    boxes[0].parentNode.removeChild(boxes[0]);
+  }
+}
 function addVowel(divclass, str, closedness, frontedness, rounded, extra='') {
   document.getElementsByClassName("vowelspace")[0].innerHTML
    += `<div class="${divclass}" ${extra} style="--closedness: ${closedness}/3; --frontedness: ${frontedness}/2; --rounded: ${rounded};"> ${str}</div>`
 }
-
+var tie = "\u0361";
 function addBox(char, closedness, frontedness, rounded) {
   addVowel('movable ixv IPA', char,
   closedness, frontedness, rounded,
@@ -63,14 +75,9 @@ function onSubmit() {
   }
   console.log(htmlbuild);
   document.getElementsByClassName("analyte")[0].innerHTML += htmlbuild; // TODO XSS
-
 }
-function onIn(ipachar) {
-  onHover(ipachar, true);
-}
-function onOut(ipachar) {
-  onHover(ipachar, false);
-}
+function onIn(ipachar) {onHover(ipachar, true);}
+function onOut(ipachar) {onHover(ipachar, false);}
 function onHover(ipachar, doHover) {
   var clo, fro, ro;
   [clo, fro, ro] = charToIdx(ipachar);
@@ -86,9 +93,12 @@ function onHover(ipachar, doHover) {
   }
 }
 var rfncstr = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ';
+var extendd = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤoeø..əə..ɤoɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ..ä...ɑɒ';
+var addlowr = '..............................ll......ll...............................';
 // var validcdhars = 'iyɨʉɯuɪʏʊʊeøɘɵɤoəəɛœɜɞʌɔææɐɐaɶɑɒ';
 var validchars = 'iyɨʉɯuɪʏʊeøɘɵɤoəɛœɜɞʌɔæɐaɶɑɒ';
-function toChar(closedness, frontedness, rounded) {
+
+var simpleToChar = function(closedness, frontedness, rounded) {
   if(rounded === 0.5) {
     rounded = 0; // correct for 0.5 for both rounded/unrounded
   }
@@ -109,7 +119,8 @@ function toChar(closedness, frontedness, rounded) {
     return ipachar;
   }
 }
-function charToIdx(ipachar) {
+
+var simpleCharToIdx = function(ipachar) {
   var idxdouble = rfncstr.indexOf(ipachar + '' + ipachar);
   // index of double char. This means that this char spans both
   // the rounded and unrounded versions of itself. For example, ʊ shows up as
@@ -141,3 +152,28 @@ function idxToElement(closedness, frontedness, rounded) {
   return document.getElementById(`v${closedness}-${frontedness}-${rounded}`)
 }
 // iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ
+function removeDup(str) {
+  var build = "";
+  for(let ipachar of str) {
+    if(build.includes(ipachar) || ipachar === '.') {
+      // do nothing
+    } else {
+      build += ipachar;
+    }
+  }
+  return build;
+}
+var toChar = simpleToChar;
+var charToIdx = simpleCharToIdx;
+
+class IPACharset {
+  constructor() {}
+  toChar() {}
+  charToIdx() {}
+  idxToElement() {}
+}
+class IPACharsetBasic extends IPACharset {
+  toChar() {
+
+  }
+}
