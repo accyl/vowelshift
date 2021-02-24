@@ -1,6 +1,6 @@
 class IPACharset {
   constructor() {}
-  idxToInt(closedness, frontedness, rounded) {
+  idxToInt(frontedness, closedness, rounded) {
     if(rounded === 0.5) {
       rounded = 0; // correct for 0.5 for both rounded/unrounded
     }
@@ -15,12 +15,12 @@ class IPACharset {
     // or 10 comes from len(rounded) * len(fronted) = 2 * 5
     return searchidx;
   }
-  toChar(closedness, frontedness, rounded) {
-    var searchidx = this.idxToInt(closedness, frontedness, rounded);
+  toChar(frontedness, closedness, rounded) {
+    var searchidx = this.idxToInt(frontedness, closedness, rounded);
     var ipachar = this.rfncstr[searchidx];
     if(ipachar === '.') {
       // i use '.' to signify no result
-      console.log(`invalid char ${closedness},${frontedness},${rounded}`)
+      console.log(`invalid char ${frontedness},${closedness},${rounded}`)
     } else {
       return ipachar;
     }
@@ -58,7 +58,7 @@ class IPACharset {
       var openidx = parseInt(idx/10);
       var closedness = (6 - openidx) / 2;
       var frontedness = (4 - backidx) / 2;
-      return [closedness, frontedness, rounded];
+      return [frontedness, closedness, rounded];
     } else {
       console.log(`char not found ${ipachar}`);
     }
@@ -103,9 +103,9 @@ class IPACharsetAdvanced extends IPACharsetBasic{
     this.lowerchar = "\u031E";
     this.validchars = adv_validchars;
   }
-  toChar(closedness, frontedness, rounded) {
-    var idx = this.idxToInt(closedness, frontedness, rounded)
-    var ch = super.toChar(closedness, frontedness, rounded);
+  toChar(frontedness, closedness, rounded) {
+    var idx = this.idxToInt(frontedness, closedness, rounded)
+    var ch = super.toChar(frontedness, closedness, rounded);
     if(this.lowerset[idx] !== '.') {
       // if we're looking at a diacritic-able
       return this.lowerset[idx] + this.lowerchar;
@@ -175,14 +175,14 @@ function createBoxes(charsetin) {
     }
   }
   for(let charseq of charsetin.validchars) {
-    var [closedness, frontedness, rounded] = charToIdx(charseq);
-    addBox(charseq, closedness, frontedness, rounded);
+    var [frontedness, closedness, rounded] = charToIdx(charseq);
+    addBox(charseq, frontedness, closedness, rounded);
   }
 }
 function createAdvBoxes(charsetin) {
   for(let charseq of adv_extras) {
-    var [closedness, frontedness, rounded] = charToIdx(charseq);
-    addBox(charseq, closedness, frontedness, rounded, true);
+    var [frontedness, closedness, rounded] = charToIdx(charseq);
+    addBox(charseq, frontedness, closedness, rounded, true);
   }
 }
 function removeAllBoxes() {
@@ -193,27 +193,27 @@ function removeAllBoxes() {
 }
 function removeAdvBoxes() {
   var boxes = document.getElementsByClassName("movable ixv IPA adv");
-  while(boxes.length){ // see https://stackoverflow.com/questions/18410450/javascript-not-removing-all-elements-within-a-div
+  while(boxes.length){
     boxes[0].parentNode.removeChild(boxes[0]);
   }
 }
-function addVowel(divclass, str, closedness, frontedness, rounded, extra='') {
+function addVowel(divclass, str, frontedness, closedness, rounded, extra='') {
   document.getElementsByClassName("vowelspace")[0].innerHTML
-   += `<div class="${divclass}" ${extra} style="--closedness: ${closedness}/3; --frontedness: ${frontedness}/2; --rounded: ${rounded};"> ${str}</div>`
+   += `<div class="${divclass}" ${extra} style="--frontedness: ${frontedness}/2; --closedness: ${closedness}/3; --rounded: ${rounded};"> ${str}</div>`
 }
-function addBox(char, closedness, frontedness, rounded, adv=false) {
+function addBox(char, frontedness, closedness, rounded, adv=false) {
   addVowel(`movable ixv IPA${adv ? " adv" : ""}`, char,
-  closedness, frontedness, rounded,
-  `id="v${closedness}-${frontedness}-${rounded}""`);
+  frontedness, closedness, rounded,
+  `id="v${frontedness}-${closedness}-${rounded}""`);
 }
-function addDot(closedness, frontedness) {
+function addDot(frontedness, closedness) {
   // document.getElementsByClassName("vowels")[0].innerHTML
   //  += "<div class=\"arbitrarydot\" "
   //  + "style=\"--closedness: "+closedness+"/3; "
   //  + "--frontedness: "+frontedness+"/2;"
   //  + "--roundedness: 0.5;"
   //  +  "\">•</div>";
-  addVowel('arbitrarydot', '•', closedness, frontedness, 0.5);
+  addVowel('arbitrarydot', '•', frontedness, closedness, 0.5);
 }
 
 function fragmentize(str, charsetin) {
@@ -260,9 +260,8 @@ function onSubmit() {
 function onIn(ipachar) {onHover(ipachar, true);}
 function onOut(ipachar) {onHover(ipachar, false);}
 function onHover(ipachar, doHover) {
-  var clo, fro, ro;
-  [clo, fro, ro] = charToIdx(ipachar);
-  var ele = idxToElement(clo, fro, ro);
+  var [fro, clo, ro] = charToIdx(ipachar);
+  var ele = idxToElement(fro, clo, ro);
   if(doHover) {
     if(!ele.classList.contains("hovered")) {
       ele.classList.add("hovered");
@@ -277,13 +276,13 @@ var rfncstr = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..
 var extendd = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤoeø..əə..ɤoɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ..ä...ɑɒ';
 var addlowr = '..............................ll......ll...............................';
 var validchars = 'iyɨʉɯuɪʏʊʊeøɘɵɤoəəɛœɜɞʌɔææɐɐaɶɑɒ';
-function toChar(closedness, frontedness, rounded) {
-  return charset.toChar(closedness, frontedness, rounded);
+function toChar(frontedness, closedness, rounded) {
+  return charset.toChar(frontedness, closedness, rounded);
 }
 function charToIdx(ipachar) {
   return charset.charToIdx(ipachar);
 }
-function idxToElement(closedness, frontedness, rounded) {
+function idxToElement(frontedness, closedness, rounded) {
   if(rounded === 0.5) {
     // rounded = 0;
     // nah it's initialized by charToIdx() so it expects 0.5
@@ -297,9 +296,9 @@ function idxToElement(closedness, frontedness, rounded) {
   // (which char is guaranteed b/c surjective)
   // then char -> idxs (think of this as the "principal root, if you will")
   // and in total idxs -> principle idxs
-  var ipachar = toChar(closedness, frontedness, rounded);
-  var [closedness, frontedness, rounded] = charToIdx(ipachar);
-  return document.getElementById(`v${closedness}-${frontedness}-${rounded}`)
+  var ipachar = toChar(frontedness, closedness, rounded);
+  var [frontedness, closedness, rounded] = charToIdx(ipachar);
+  return document.getElementById(`v${frontedness}-${closedness}-${rounded}`)
 }
 function removeDup(str) {
   var build = "";
