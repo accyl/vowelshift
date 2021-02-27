@@ -25,7 +25,7 @@ class IPACharset {
       return ipachar;
     }
   }
-  charToIdx(ipachar, rfncstr=undefined) {
+  charToIdx(charseq, rfncstr=undefined) {
 
     // REQUIREMENT: In rfncstr,
     //  all chars must appear once and only once.
@@ -44,12 +44,12 @@ class IPACharset {
     if(rfncstr === undefined) {
       rfncstr = this.rfncstr;
     }
-    var idxdouble = rfncstr.indexOf(ipachar + '' + ipachar);
+    var idxdouble = rfncstr.indexOf(charseq + '' + charseq);
     var rounded = -1;
     if(idxdouble > -1) { // if there is a double version: if both r and unr
       rounded = 0.5;
     }
-    var idx = rfncstr.indexOf(ipachar);
+    var idx = rfncstr.indexOf(charseq);
     if(idx > -1) {
       if(rounded === -1) {
         var rounded = idx % 2;
@@ -60,8 +60,11 @@ class IPACharset {
       var frontedness = (4 - backidx) / 2;
       return [frontedness, closedness, rounded];
     } else {
-      console.log(`char not found ${ipachar}`);
+      console.log(`char not found ${charseq}`);
     }
+  }
+  isValid(charseq) {
+    return Boolean(this.charToIdx(charseq));
   }
 }
 var basic_validchars = 'iyɨʉɯuɪʏʊeøɘɵɤoəɛœɜɞʌɔæɐaɶɑɒ'.split('');
@@ -223,7 +226,29 @@ function fragmentize(str, charsetin) {
   var frags = []; // an array of string fragments, each of which represent either nonrecognized characters or a vowels
   // for example ['f','ɜ','rm','ə','r' ]
   var buildup = '';
-  for(let char of str) { // TODO: split by diacritic
+  for(let i=0;i<str.length;i++) { // TODO: split by diacritic
+    let char = str[i];
+    if(i+1 < str.length) {
+      // lookahead
+      if (str[i+1] === adv_charset.lowerchar) {
+        let seq = str.slice(i, i+1+1); // we have our sequence
+        if(charset.charToIdx(seq)) { // if our diacritical mark is valid
+          if(buildup) {
+            frags.push(buildup);
+          }
+          frags.push(seq);
+          buildup = '';
+          i++;
+          continue; // continue as , skipping one since we already parsed 2
+        } else {
+          buildup = buildup + '' + char;
+          // our diacritic mark was invalid!
+          // only go up by 1 since the next pair could be valid
+          continue;
+        }
+        // either way, we
+      }
+    }
     if (charset.validchars.indexOf(char) > -1) { // if char found; if vowel
       if(buildup) {
         frags.push(buildup);
@@ -240,14 +265,22 @@ function fragmentize(str, charsetin) {
   // now we have string fragments
   return frags;
 }
+function removeAnalyte() {
+  var node = document.getElementsByClassName("analyte")[0];
+  while (node.hasChildNodes()) {
+    node.removeChild(node.lastChild);
+  }
+}
 function onSubmit() {
+
   var querystr = document.getElementsByClassName("analyzer")[0].value;
   console.log(querystr);
   var htmlbuild = " ";
   var frags = fragmentize(querystr);
+  removeAnalyte();
   for(let frag of frags) {
-    if(frag.length === 1 && validchars.includes(frag)) {
-      // if it's a lone vowel, box it
+    if(frag.length <= 2 && charset.isValid(frag)) {
+      // if it's a valid
       // TODO: investigate XSS here. I think we should be relatively safe becuase it's only 1 char? (Famous Last Words)
       htmlbuild += `<span class="alyt" onmouseover="onIn('${frag}')" onmouseout="onOut('${frag}')">${frag}</span>`;
     } else {
