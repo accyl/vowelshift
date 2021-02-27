@@ -155,6 +155,8 @@ const basic_charset = new IPACharsetBasic();
 const adv_charset = new IPACharsetAdvanced();
 var charset = basic_charset;
 
+const breve = "\u0361"
+
 function init() { // called on page load
   console.log("init()");
   var checkbox = document.getElementById('checkbox')
@@ -226,6 +228,7 @@ function fragmentize(str, charsetin) {
   var frags = []; // an array of string fragments, each of which represent either nonrecognized characters or a vowels
   // for example ['f','ɜ','rm','ə','r' ]
   var buildup = '';
+
   for(let i=0;i<str.length;i++) { // TODO: split by diacritic
     let char = str[i];
     if(i+1 < str.length) {
@@ -241,12 +244,32 @@ function fragmentize(str, charsetin) {
           i++;
           continue; // continue as , skipping one since we already parsed 2
         } else {
-          buildup = buildup + '' + char;
+          buildup = buildup + '' + seq;
           // our diacritic mark was invalid!
-          // only go up by 1 since the next pair could be valid
+          // dump the whole vowel/diacritic pair.
+          // skip an extra one
+          i++;
           continue;
         }
         // either way, we
+      } else if(str[i+1] === breve) {
+        // cool affricate notation that
+        // originally mentioned here https://www.reddit.com/r/linguistics/comments/lml34c/i_have_made_the_quick_brown_fox_of_vowel_phonemes/gny6pq7
+        if(i+2 < str.length) {
+          // we have space to form the combination of 3
+          if(charToIdx(str[i]) && charToIdx([str[i+2]])) {
+            // if both vowels are valid
+            let seq = str.slice(i, i+2+1);
+            if(buildup) {
+              frags.push(buildup);
+            }
+            frags.push(seq);
+            buildup = '';
+            i+=2; // skip 2 extra
+            continue;
+          }
+        }
+
       }
     }
     if (charset.validchars.indexOf(char) > -1) { // if char found; if vowel
@@ -276,10 +299,14 @@ function onSubmit() {
   var querystr = document.getElementsByClassName("analyzer")[0].value;
   console.log(querystr);
   var htmlbuild = " ";
-  var frags = fragmentize(querystr);
   removeAnalyte();
+  var frags = fragmentize(querystr, charset);
   for(let frag of frags) {
-    if(frag.length <= 2 && charset.isValid(frag)) {
+    if(frag.length === 3 && frag[1] === breve && charset.isValid(frag[0]) && charset.isValid(frag[2])) {
+      // affricate tie.
+      // highlight both at the same time
+      htmlbuild += `<span class="alyt" onmouseover="onIn('${frag[0]}', '${frag[2]}')" onmouseout="onOut('${frag[0]}', '${frag[2]}')">${frag}</span>`;
+    } else if(frag.length <= 2 && charset.isValid(frag)) {
       // if it's a valid
       // TODO: investigate XSS here. I think we should be relatively safe becuase it's only 1 char? (Famous Last Words)
       htmlbuild += `<span class="alyt" onmouseover="onIn('${frag}')" onmouseout="onOut('${frag}')">${frag}</span>`;
@@ -287,11 +314,11 @@ function onSubmit() {
       htmlbuild += frag;
     }
   }
-  console.log(htmlbuild);
+  // console.log(htmlbuild);
   document.getElementsByClassName("analyte")[0].innerHTML += htmlbuild; // TODO XSS
 }
-function onIn(ipachar) {onHover(ipachar, true);}
-function onOut(ipachar) {onHover(ipachar, false);}
+function onIn(ipachar, ipa2) {onHover(ipachar, true);if(ipa2) onHover(ipa2, true);}
+function onOut(ipachar, ipa2) {onHover(ipachar, false);if(ipa2) onHover(ipa2, false);}
 function onHover(ipachar, doHover) {
   var [fro, clo, ro] = charToIdx(ipachar);
   var ele = idxToElement(fro, clo, ro);
