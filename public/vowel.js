@@ -191,13 +191,13 @@ function createAdvBoxes(charsetin) {
   }
 }
 function removeAllBoxes() {
-  var boxes = document.getElementsByClassName("movable ixv IPA");
+  var boxes = document.getElementsByClassName("mvbl ixv ipa");
   while(boxes.length){ // see https://stackoverflow.com/questions/18410450/javascript-not-removing-all-elements-within-a-div
     boxes[0].parentNode.removeChild(boxes[0]);
   }
 }
 function removeAdvBoxes() {
-  var boxes = document.getElementsByClassName("movable ixv IPA adv");
+  var boxes = document.getElementsByClassName("mvbl ixv ipa adv");
   while(boxes.length){
     boxes[0].parentNode.removeChild(boxes[0]);
   }
@@ -207,7 +207,7 @@ function addVowel(divclass, str, frontedness, closedness, rounded, extra='') {
    += `<div class="${divclass}" ${extra} style="--frontedness: ${frontedness}/2; --closedness: ${closedness}/3; --rounded: ${rounded};"> ${str}</div>`
 }
 function addBox(char, frontedness, closedness, rounded, adv=false) {
-  addVowel(`movable ixv IPA${adv ? " adv" : ""}`, char,
+  addVowel(`mvbl ixv ipa${adv ? " adv" : ""}`, char,
   frontedness, closedness, rounded,
   `id="v${frontedness}-${closedness}-${rounded}""`);
 }
@@ -305,17 +305,19 @@ function onSubmit() {
     if(frag.length === 3 && frag[1] === breve && charset.isValid(frag[0]) && charset.isValid(frag[2])) {
       // affricate tie.
       // highlight both at the same time
-      htmlbuild += `<span class="alyt" onmouseover="onIn('${frag[0]}', '${frag[2]}')" onmouseout="onOut('${frag[0]}', '${frag[2]}')">${frag}</span>`;
-    } else if(frag.length <= 2 && charset.isValid(frag)) {
+      htmlbuild += `<span class="speci" onmouseover="onIn('${frag[0]}', '${frag[2]}')" onmouseout="onOut('${frag[0]}', '${frag[2]}')">${frag}</span>`;
+    } else if((frag.length === 2 && frag[1] == adv_charset.lowerchar
+      || frag.length === 1) && charset.isValid(frag)) {
       // if it's a valid
       // TODO: investigate XSS here. I think we should be relatively safe becuase it's only 1 char? (Famous Last Words)
-      htmlbuild += `<span class="alyt" onmouseover="onIn('${frag}')" onmouseout="onOut('${frag}')">${frag}</span>`;
+      htmlbuild += `<span class="speci" onmouseover="onIn('${frag}')" onmouseout="onOut('${frag}')">${frag}</span>`;
     } else {
       htmlbuild += frag;
     }
   }
   // console.log(htmlbuild);
   document.getElementsByClassName("analyte")[0].innerHTML += htmlbuild; // TODO XSS
+  document.getElementsByClassName("analyte-div")[0].style.visibility = 'visible';
 }
 function onIn(ipachar, ipa2) {onHover(ipachar, true);if(ipa2) onHover(ipa2, true);}
 function onOut(ipachar, ipa2) {onHover(ipachar, false);if(ipa2) onHover(ipa2, false);}
@@ -359,6 +361,17 @@ function idxToElement(frontedness, closedness, rounded) {
   var ipachar = toChar(frontedness, closedness, rounded);
   var [frontedness, closedness, rounded] = charToIdx(ipachar);
   return document.getElementById(`v${frontedness}-${closedness}-${rounded}`)
+}
+var closedstr = ["open", "near-open", "open-mid", "mid", "close-mid", "near-close"];
+var closedupperstr = ["Open", "Near-open", "Open-mid", "Mid", "Close-mid", "Near-close"];
+var frontedstr = ["front", "near-front", "central", "near-back", "back"];
+function idxToStr(fronted, closed, round) {
+  var buildstr = "";
+  buildstr += closedupperstr[closed * 2];
+  buildstr += " ";
+  buildstr += fronstr[fronted * 2];
+  buildstr += round ? " rounded" : " unrounded";
+  buildstr += " vowel";
 }
 function removeDup(str) {
   var build = "";

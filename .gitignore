@@ -1,1 +1,6 @@
 dev-bin
+secret
+.firebase
+.github
+.firebaserc
+firebase.json

@@ -50,17 +50,32 @@
     <!-- </label> -->
   </div>
   <br>
-  <input type="text" class="analyzer" name="inp" value="# du kʊk ʌp mɔr brɒθ, ˈfɜrmər, fast ænd lɛt ɪt hit. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ rɛr bɪr kjʊr" placeholder="Paste IPA Symbols Here To Analyze">
-  <input type="button" class="btn" value="submit" onclick="onSubmit()">
-  <div class="analyte"></div>
+  <div class="labarea">
+    <input type="text" class="analyzer" name="inp" cols="5" rows="1" value="# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə" placeholder="Paste IPA Symbols Here To Analyze">
+<!-- # du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə -->
+  <!-- </textarea> -->
+    <input type="button" class="submit-btn" value="submit" onclick="onSubmit()">
+  </div>
+  <div class="analyte-div">
+    <div class="analyte"></div>
+    <div class="slide-div">
+      <input class="slide" type="range">
+    </div>
+  </div>
   <div class="credits">
     Sample vowel sentence <a href="https://www.reddit.com/r/linguistics/comments/lml34c/i_have_made_the_quick_brown_fox_of_vowel_phonemes/gnvwerf">by u/Peteat6</a>
     <br>Vowel trapezoid chart is by User:Denelson83 and is in public domain. See Wikimedia Commons
     <a href="https://commons.wikimedia.org/wiki/File:Blank_vowel_trapezoid.png">File:Blank vowel trapezoid.png</a>
-    <br>Elements have been inspired/borrowed from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for ixv IPA,
+    <br>Elements have been inspired/borrowed from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for interactive IPA,
     including vowels, consonants, affricates. IPA Vowel Chart is unaffiliated with ipachart.com.
       </div>
 <!-- <img src='ipa.png'></img> -->
-
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="/__/firebase/8.2.10/firebase-app.js"></script>
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="/__/firebase/8.2.10/firebase-analytics.js"></script>
+<!-- Initialize Firebase -->
+<script src="/__/firebase/init.js"></script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 
-.IPA {
+.ipa {
 	font-family: "DejaVu Sans", "Arial Unicode MS", "Lucida Sans Unicode", sans-serif;
 }
 body {
 	font-family: sans-serif;
 	text-align: center;
+	background-color: #f9f9f9;
 }
 h2 {
 	text-align: center;
@@ -17,12 +18,12 @@ h2 {
 	font-size: 5em;
 	z-index: -2;
 }
-.movable, .v {
+.mvbl, .v {
 	color: black;
 	font-size: 2em;
 	z-index: 3;
 }
-.arbitrarydot, .movable, .v {
+.arbitrarydot, .mvbl, .v {
 	position: absolute;
 
 	--rounded: 0.5;
@@ -65,24 +66,61 @@ h2 {
 	visibility: hidden;
 	display: none;
 }
-.submit {
 
+.labarea {
+	margin: 3em auto 0.1em auto;
 }
 .analyzer {
-	margin: 3em auto 0.1em auto;
+	height: 2em;
 	width: 50%;
+	line-height: 3em;
+	font-size: 1em;
+}
+.submit-btn {
+	/* background-color: #0095ff; */
+	/* color: white; */
+	/* font-size:1.5em; */
+	margin-left: 1em;
+	cursor: pointer;
+	height: 2em;
+	/* line-height: 3em; */
+	font-size: 1em;
+}
+.analyte-div {
+	display: inline-block;
+	visibility: hidden;
 }
 .analyte {
+	margin: 1em auto 0.1em auto;
 	font-size: 1.5em;
 }
-.alyt {
-	background-color: #dfd;
+.slide-div {
+	display: flex;
+}
+.slide-div .slide {
+  flex-grow: 1;
+  width: 0;
+
+}
+.speci {
+	/* background-color: #dfd; */
+	/* background-color: #CCE5FF; */
+	/* background-color: #CCCCFF; */
+	/* background-color: #66B2FF; */
+	/* background-color: #99FFFF; */
+	/* background-color: #99CCFF; */
+	background-color: #99FF99;
 }
 .vowelspace .ixv {
 	border: 1px solid grey;
 	/* background-color: #15d798; */
 	/* background-color: #17DDE4; */
-	background-color: #f8f8f8;
+	/* background-color: #f8f8f8; */
+	/* background-color: #CCE5FF; */
+	/* background-color: #f5f0ce; */
+	background-color: #e4dedf;
+	/* background-color: #e9e9e9; */
+	/*https://colorpalettes.net/color-palette-1180/*/
 }
 
 .ixv {
