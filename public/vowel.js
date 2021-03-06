@@ -204,7 +204,7 @@ function removeAdvBoxes() {
 }
 function addVowel(divclass, str, frontedness, closedness, rounded, extra='') {
   document.getElementsByClassName("vowelspace")[0].innerHTML
-   += `<div class="${divclass}" ${extra} style="--frontedness: ${frontedness}/2; --closedness: ${closedness}/3; --rounded: ${rounded};"> ${str}</div>`
+   += `<div class="${divclass}" ${extra} style="--fronted: ${frontedness}/2; --closed: ${closedness}/3; --rounded: ${rounded};">${str}</div>`
 }
 function addBox(char, frontedness, closedness, rounded, adv=false) {
   addVowel(`mvbl ixv ipa${adv ? " adv" : ""}`, char,
@@ -214,9 +214,9 @@ function addBox(char, frontedness, closedness, rounded, adv=false) {
 function addDot(frontedness, closedness) {
   // document.getElementsByClassName("vowels")[0].innerHTML
   //  += "<div class=\"arbitrarydot\" "
-  //  + "style=\"--closedness: "+closedness+"/3; "
-  //  + "--frontedness: "+frontedness+"/2;"
-  //  + "--roundedness: 0.5;"
+  //  + "style=\"--closed: "+closedness+"/3; "
+  //  + "--fronted: "+frontedness+"/2;"
+  //  + "--rounded: 0.5;"
   //  +  "\">•</div>";
   addVowel('arbitrarydot', '•', frontedness, closedness, 0.5);
 }
