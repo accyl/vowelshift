@@ -154,7 +154,8 @@ const basic_charset = new IPACharsetBasic();
 const adv_charset = new IPACharsetAdvanced();
 var charset = basic_charset;
 
-const breve = "\u0361"
+const breve = "\u0361";
+const lowerchar = "\u031E";
 
 function init() { // called on page load
   console.log("init()");
@@ -232,7 +233,7 @@ function fragmentize(str, charsetin) {
     let char = str[i];
     if(i+1 < str.length) {
       // lookahead
-      if (str[i+1] === adv_charset.lowerchar) {
+      if (str[i+1] === lowerchar) {
         let seq = str.slice(i, i+1+1); // we have our sequence
         if(charset.charToIdx(seq)) { // if our diacritical mark is valid
           if(buildup) {
@@ -258,7 +259,13 @@ function fragmentize(str, charsetin) {
           // we have space to form the combination of 3
           if(charToIdx(str[i]) && charToIdx([str[i+2]])) {
             // if both vowels are valid
-            let seq = str.slice(i, i+2+1);
+            let seq;
+            if(i+3 < str.length && str[i+3] === lowerchar) {
+              // hacky fix to make diphthongs work with those advanced vowels that get lowered
+              seq = str.slice(i, i+2+2);
+            } else  {
+              seq = str.slice(i, i+2+1);
+            }
             if(buildup) {
               frags.push(buildup);
             }
@@ -305,7 +312,7 @@ function onSubmit() {
       // affricate tie.
       // highlight both at the same time
       htmlbuild += `<span class="speci" onmouseover="onIn('${frag[0]}', '${frag[2]}')" onmouseout="onOut('${frag[0]}', '${frag[2]}')">${frag}</span>`;
-    } else if((frag.length === 2 && frag[1] == adv_charset.lowerchar
+    } else if((frag.length === 2 && frag[1] === lowerchar
       || frag.length === 1) && charset.isValid(frag)) {
       // if it's a valid
       // TODO: investigate XSS here. I think we should be relatively safe becuase it's only 1 char? (Famous Last Words)
