@@ -220,7 +220,12 @@ function addDot(frontedness, closedness) {
   //  +  "\">•</div>";
   addVowel('arbitrarydot', '•', frontedness, closedness, 0.5);
 }
-
+function removeAnalyte() {
+  var node = document.getElementsByClassName("analyte")[0];
+  while (node.hasChildNodes()) {
+    node.removeChild(node.lastChild);
+  }
+}
 function fragmentize(str, charsetin) {
   if(charsetin === undefined) {
     charsetin = charset;
@@ -228,7 +233,14 @@ function fragmentize(str, charsetin) {
   var frags = []; // an array of string fragments, each of which represent either nonrecognized characters or a vowels
   // for example ['f','ɜ','rm','ə','r' ]
   var buildup = '';
-
+  function pushfrag(frag, vowel=false) {
+	if(vowel) {
+	  frag["vowel"] = true;
+	} else {
+	  frag["vowel"] = false;
+	}
+	frags.push(frag)
+  }
   for(let i=0;i<str.length;i++) { // TODO: split by diacritic
     let char = str[i];
     if(i+1 < str.length) {
@@ -237,9 +249,9 @@ function fragmentize(str, charsetin) {
         let seq = str.slice(i, i+1+1); // we have our sequence
         if(charset.charToIdx(seq)) { // if our diacritical mark is valid
           if(buildup) {
-            frags.push(buildup);
+            pushfrag(buildup);
           }
-          frags.push(seq);
+          pushfrag(seq, true);
           buildup = '';
           i++;
           continue; // continue as , skipping one since we already parsed 2
@@ -263,13 +275,14 @@ function fragmentize(str, charsetin) {
             if(i+3 < str.length && str[i+3] === lowerchar) {
               // hacky fix to make diphthongs work with those advanced vowels that get lowered
               seq = str.slice(i, i+2+2);
+			  i++;
             } else  {
               seq = str.slice(i, i+2+1);
             }
             if(buildup) {
-              frags.push(buildup);
+              pushfrag(buildup);
             }
-            frags.push(seq);
+            pushfrag(seq, true);
             buildup = '';
             i+=2; // skip 2 extra
             continue;
@@ -280,25 +293,19 @@ function fragmentize(str, charsetin) {
     }
     if (charset.validchars.indexOf(char) > -1) { // if char found; if vowel
       if(buildup) {
-        frags.push(buildup);
+        pushfrag(buildup);
       }
-      frags.push(char);
+      pushfrag(char, true);
       buildup = '';
     } else { // if char not found; if consonant
       buildup = buildup + '' + char;
     }
   }
   if(buildup) {
-    frags.push(buildup);
+    pushfrag(buildup);
   }
   // now we have string fragments
   return frags;
-}
-function removeAnalyte() {
-  var node = document.getElementsByClassName("analyte")[0];
-  while (node.hasChildNodes()) {
-    node.removeChild(node.lastChild);
-  }
 }
 function onSubmit() {
 
@@ -308,10 +315,10 @@ function onSubmit() {
   removeAnalyte();
   var frags = fragmentize(querystr, charset);
   for(let frag of frags) {
-    if(frag.length === 3 && frag[1] === breve && charset.isValid(frag[0]) && charset.isValid(frag[2])) {
+    if((frag.length === 3 || frag.length === 4) && frag[1] === breve && charset.isValid(frag[0]) && charset.isValid(frag.substring(2))) {
       // affricate tie.
       // highlight both at the same time
-      htmlbuild += `<span class="speci" onmouseover="onIn('${frag[0]}', '${frag[2]}')" onmouseout="onOut('${frag[0]}', '${frag[2]}')">${frag}</span>`;
+      htmlbuild += `<span class="speci" onmouseover="onIn('${frag[0]}', '${frag.substring(2)}')" onmouseout="onOut('${frag[0]}', '${frag.substring(2)}')">${frag}</span>`;
     } else if((frag.length === 2 && frag[1] === lowerchar
       || frag.length === 1) && charset.isValid(frag)) {
       // if it's a valid
