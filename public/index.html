@@ -51,15 +51,16 @@
   </div>
   <br>
   <div class="labarea">
-    <input type="text" class="analyzer" name="inp" cols="5" rows="1" value="# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə" placeholder="Paste IPA Symbols Here To Analyze">
+    <input type="text" class="analyzer" name="inp" cols="5" rows="1" value="" placeholder="Paste IPA Symbols Here To Analyze">
 <!-- # du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə -->
   <!-- </textarea> -->
-    <input type="button" class="submit-btn" value="submit" onclick="onSubmit()">
+	<input type="button" class="submit-btn" value="Random Transcription" onclick="randomSampleInput()">
+	<input type="button" class="submit-btn" value="submit" onclick="onSubmit()">
   </div>
   <div class="analyte-div">
     <div class="analyte"></div>
     <div class="slide-div">
-      <input class="slide" type="range">
+      <input class="slide" type="range" step="0.2" oninput="updateSliderHover()">
     </div>
   </div>
   <div class="credits">

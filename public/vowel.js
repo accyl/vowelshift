@@ -347,9 +347,9 @@ function onHover(ipachar, doHover) {
     }
   }
 }
-var rfncstr = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ';
-var extendd = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤoeø..əə..ɤoɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ..ä...ɑɒ';
-var addlowr = '..............................ll......ll...............................';
+// var rfncstr = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤo....əə....ɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ......ɑɒ';
+// var extendd = 'iy..ɨʉ..ɯu..ɪʏ..ʊʊ..eø..ɘɵ..ɤoeø..əə..ɤoɛœ..ɜɞ..ʌɔææ..ɐɐ....aɶ..ä...ɑɒ';
+// var addlowr = '..............................ll......ll...............................';
 var validchars = 'iyɨʉɯuɪʏʊʊeøɘɵɤoəəɛœɜɞʌɔææɐɐaɶɑɒ';
 function toChar(frontedness, closedness, rounded) {
   return charset.toChar(frontedness, closedness, rounded);
@@ -396,4 +396,25 @@ function removeDup(str) {
     }
   }
   return build;
+}
+function randomSampleInput() {
+  document.getElementsByClassName("analyzer")[0].value = "# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə";
+}
+var prevsliderhov = undefined;
+function updateSliderHover() {
+  let slider = document.getElementsByClassName("slide")[0];
+  let analyte = document.getElementsByClassName("analyte")[0];
+  let eqvposx = analyte.offsetLeft + analyte.clientLeft + analyte.clientWidth * slider.value / 100;
+  let eqvposy = analyte.offsetTop;
+  let highlightme = document.elementFromPoint(eqvposx, eqvposy);
+  if(highlightme !== prevsliderhov) {
+    // a change in slider hovering item
+    if(highlightme.classList.contains("speci")) { // only care if we're over a vowel
+      if(prevsliderhov) prevsliderhov.onmouseout();
+
+      if(highlightme.onmouseover) highlightme.onmouseover();
+      prevsliderhov = highlightme;
+    }
+  }
+  
 }
