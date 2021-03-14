@@ -108,12 +108,11 @@ class IPACharsetAdvanced extends IPACharsetBasic{
   }
   toChar(frontedness, closedness, rounded) {
     var idx = this.idxToInt(frontedness, closedness, rounded)
-    var ch = super.toChar(frontedness, closedness, rounded);
     if(this.lowerset[idx] !== '.') {
       // if we're looking at a diacritic-able
       return this.lowerset[idx] + this.lowerchar;
     } else {
-      return ch;
+      return super.toChar(frontedness, closedness, rounded);
     }
   }
   charToIdx(charseq) {
