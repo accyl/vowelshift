@@ -405,16 +405,18 @@ function updateSliderHover() {
   let slider = document.getElementsByClassName("slide")[0];
   let analyte = document.getElementsByClassName("analyte")[0];
   let eqvposx = analyte.offsetLeft + analyte.clientLeft + analyte.clientWidth * slider.value / 100;
-  let eqvposy = analyte.offsetTop;
+  let eqvposy = analyte.offsetTop - window.pageYOffset;
   let highlightme = document.elementFromPoint(eqvposx, eqvposy);
-  if(highlightme !== prevsliderhov) {
-    // a change in slider hovering item
-    if(highlightme.classList.contains("speci")) { // only care if we're over a vowel
-      if(prevsliderhov) prevsliderhov.onmouseout();
+  if(highlightme) {
+    if(highlightme !== prevsliderhov) {
+      // a change in slider hovering item
+      if(highlightme.classList.contains("speci")) { // only care if we're over a vowel
+        if(prevsliderhov) prevsliderhov.onmouseout();
 
-      if(highlightme.onmouseover) highlightme.onmouseover();
-      prevsliderhov = highlightme;
+        if(highlightme.onmouseover) highlightme.onmouseover();
+        prevsliderhov = highlightme;
+      }
     }
   }
-  
+
 }
