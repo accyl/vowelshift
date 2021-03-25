@@ -53,7 +53,9 @@ h2 {
 .credits {
 	margin: 3em auto 0.1em auto;
 	width: 45em;
-	/* background-color: #e8e8e8; */
+	border: solid black 1px;
+	padding: 1em 1em 1em 1em;
+	background-color: #e8e8e8;
 }
 .dev {
 	visibility: hidden;
@@ -61,6 +63,7 @@ h2 {
 }
 .labarea {
 	margin: 3em auto 0.1em auto;
+	/* border: solid black 1px; */
 }
 .analyzer {
 	height: 2em;
@@ -85,6 +88,9 @@ h2 {
 .analyte {
 	margin: 1em auto 0.1em auto;
 	font-size: 1.5em;
+	/* overflow-x: scroll; */
+	/* overflow-y: hidden; */
+  /* white-space: nowrap; */
 }
 .slide-div {
 	display: flex;
@@ -93,6 +99,36 @@ h2 {
   flex-grow: 1;
   width: 0;
 }
+.sqtest {
+	--closed: 1;
+  --fronted: 0;
+	--rounded: 1;
+	width: 6%;
+	height: 11%;
+	border: dashed rgba(255, 0, 0, 0.9);
+	/* background-color: rgba(255, 0, 0, 0.1); */
+	z-index: 5;
+	pointer-events: none;
+
+}
+.sqbox {
+	/* invisible padding */
+	border: none;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+}
+.sqtext {
+	/* font-size:0.5em; */
+	white-space: nowrap;
+
+	font-size:0.5em;
+	color: rgba(255, 0, 0, 0.9);
+	transform: translateY(-75%);
+	display: flex;
+	justify-content: center;
+}
+
 .speci {
 	/* background-color: #dfd; */
 	/* background-color: #CCE5FF; */
@@ -102,7 +138,7 @@ h2 {
 	/* background-color: #99CCFF; */
 	background-color: #99FF99;
 }
-.vowelspace .ixv {
+.vowelchart .ixv {
 	border: 1px solid grey;
 	/* background-color: #15d798; */
 	/* background-color: #17DDE4; */
@@ -130,61 +166,61 @@ h2 {
 	max-width: 38em;
 	margin: 1.5em auto 0.1em auto;
 }
-.vowelspace {
+.vowelchart {
 	position: relative;
 	width: 35em;
 	margin: 1.5em 0em 0em 1.5em; /* fix to make the top headers work */
 }
-.vowelspace .trapezoid {
+.vowelchart .trapezoid {
 	left: 0;
 	top: 0;
 	width: 100%;
 	height: 100%;
 }
-.vowelspace .v, .vowelspace .arbitrarydot {
+.vowelchart .v, .vowelchart .arbitrarydot {
 	width: 14%;
 	text-align: center;
 	position: absolute;
 }
-.vowelspace .ixv {
+.vowelchart .ixv {
 	font-size: 1.3em;
 	padding-left: 0.2em;
 	padding-right: 0.2em;
 	/* , 0.2em, 0em; */
 	/* visibility: hidden; */
 }
-.vowelspace .l {
+.vowelchart .l {
 	position: absolute;
 	font-size: 90%;
 }
 
 
 
-.vowelspace .front {
+.vowelchart .front {
 	top: -1.5em;
 	left: 7%;
 }
-.vowelspace .central {
+.vowelchart .central {
 	top: -1.5em;
 	left: 45%;
 }
-.vowelspace .back {
+.vowelchart .back {
 	top: -1.5em;
 	left: 87%;
 }
-.vowelspace .close {
+.vowelchart .close {
 	top: 5%;
 	left: -1.5em;
 }
-.vowelspace .closemid {
+.vowelchart .closemid {
 	top: 34%;
 	left: -1.5em;
 }
-.vowelspace .openmid {
+.vowelchart .openmid {
 	top: 62%;
 	left: -1.5em;
 }
-.vowelspace .open {
+.vowelchart .open {
 	top: 90%;
 	left: -1.5em;
 }

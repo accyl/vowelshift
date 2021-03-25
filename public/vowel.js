@@ -203,7 +203,7 @@ function removeAdvBoxes() {
   }
 }
 function addVowel(divclass, str, frontedness, closedness, rounded, extra='') {
-  document.getElementsByClassName("vowelspace")[0].innerHTML
+  document.getElementsByClassName("movables")[0].innerHTML
    += `<div class="${divclass}" ${extra} style="--fronted: ${frontedness}/2; --closed: ${closedness}/3; --rounded: ${rounded};">${str}</div>`
 }
 function addBox(char, frontedness, closedness, rounded, adv=false) {
@@ -397,8 +397,17 @@ function removeDup(str) {
   }
   return build;
 }
+const sample = {};
+sample["chaucer"] = "hwɑn θɑt ɑːprɪl wɪθ hɪs ʃuːrəs soːtə"+
+"θə druːxt ɔf mɑrt͡ʃ haθ pɛːrsəd toː θə roːtə"+
+"ɑnd bɑːðəd ɛvrɪ vɛɪn ɪn swit͡ʃ lɪkuːr"+
+"ɔf hwɪt͡ʃ vɛrtɪʊ ɛnjɛndrəd ɪs θə fluːr"+
+"hwɑn zəfɪrʊs eːk wɪθ hɪs sweːtə brɛːθ"+
+"ɪnspiːrəd hɑθ ɪn ɛvrɪ hɔlt ɑnd hɛːθ";
+sample["range"] = "# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə";
 function randomSampleInput() {
-  document.getElementsByClassName("analyzer")[0].value = "# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə";
+  document.getElementsByClassName("analyzer")[0].value = sample["range"];
+
 }
 var prevsliderhov = undefined;
 function updateSliderHover() {
