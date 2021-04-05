@@ -157,9 +157,20 @@ var charset = basic_charset;
 const breve = "\u0361";
 const lowerchar = "\u031E";
 
+function setVisible(classname, visible) {
+  let el = document.getElementsByClassName(classname)[0];
+  if(el === undefined) {
+    throw new TypeError("Cannot find element of classname "+ classname);
+  }
+  if(visible) {
+    el.classList.remove("removed");
+  } else {
+    el.classList.add("removed");
+  }
+}
 function init() { // called on page load
   console.log("init()");
-  var checkbox = document.getElementById('checkbox')
+  var checkbox = document.getElementsByClassName('ipa-more')[0];
   checkbox.addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
       charset = adv_charset;
@@ -170,6 +181,22 @@ function init() { // called on page load
     }
   });
   createBoxes();
+  var gvs = document.getElementsByClassName('gvs-more')[0];
+  function doGVS() {
+    createTable();
+    setVisible("analysis", false);
+    setVisible("gvs-div", true);
+  }
+  gvs.addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+      doGVS();
+    } else {
+      removeAllChildren();
+      setVisible("analysis", true);
+      setVisible("gvs-div", false);
+    }
+  });
+  doGVS();
 }
 function createBoxes(charsetin) {
   if(charsetin === undefined) {
@@ -220,8 +247,8 @@ function addDot(frontedness, closedness) {
   //  +  "\">•</div>";
   addVowel('arbitrarydot', '•', frontedness, closedness, 0.5);
 }
-function removeAnalyte() {
-  var node = document.getElementsByClassName("analyte")[0];
+function removeResults() {
+  var node = document.getElementsByClassName("results")[0];
   while (node.hasChildNodes()) {
     node.removeChild(node.lastChild);
   }
@@ -309,10 +336,10 @@ function fragmentize(str, charsetin) {
 }
 function onSubmit() {
 
-  var querystr = document.getElementsByClassName("analyzer")[0].value;
+  var querystr = document.getElementsByClassName("searchbar")[0].value;
   console.log(querystr);
   var htmlbuild = " ";
-  removeAnalyte();
+  removeResults();
   var frags = fragmentize(querystr, charset);
   for(let frag of frags) {
     if((frag.length === 3 || frag.length === 4) && frag[1] === breve && charset.isValid(frag[0]) && charset.isValid(frag.substring(2))) {
@@ -329,8 +356,8 @@ function onSubmit() {
     }
   }
   // console.log(htmlbuild);
-  document.getElementsByClassName("analyte")[0].innerHTML += htmlbuild; // TODO XSS
-  document.getElementsByClassName("analyte-div")[0].style.visibility = 'visible';
+  document.getElementsByClassName("results")[0].innerHTML += htmlbuild; // TODO XSS
+  document.getElementsByClassName("results-div")[0].style.visibility = 'visible';
 }
 function onIn(ipachar, ipa2) {onHover(ipachar, true);if(ipa2) onHover(ipa2, true);}
 function onOut(ipachar, ipa2) {onHover(ipachar, false);if(ipa2) onHover(ipa2, false);}
@@ -406,15 +433,16 @@ sample["chaucer"] = "hwɑn θɑt ɑːprɪl wɪθ hɪs ʃuːrəs soːtə"+
 "ɪnspiːrəd hɑθ ɪn ɛvrɪ hɔlt ɑnd hɛːθ";
 sample["range"] = "# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə";
 function randomSampleInput() {
-  document.getElementsByClassName("analyzer")[0].value = sample["range"];
+  document.getElementsByClassName("searchbar")[0].value = sample["range"];
 
 }
 var prevsliderhov = undefined;
 function updateSliderHover() {
-  let slider = document.getElementsByClassName("slide")[0];
-  let analyte = document.getElementsByClassName("analyte")[0];
-  let eqvposx = analyte.offsetLeft + analyte.clientLeft + analyte.clientWidth * slider.value / 100;
-  let eqvposy = analyte.offsetTop - window.pageYOffset;
+  // let slider = document.getElementsByClassName("slide")[0];
+  let slider = document.getElementById("a-slide");
+  let results = document.getElementsByClassName("results")[0];
+  let eqvposx = results.offsetLeft + results.clientLeft + results.clientWidth * slider.value / 100;
+  let eqvposy = results.offsetTop - window.pageYOffset;
   let highlightme = document.elementFromPoint(eqvposx, eqvposy);
   if(highlightme) {
     if(highlightme !== prevsliderhov) {
@@ -428,4 +456,89 @@ function updateSliderHover() {
     }
   }
 
+}
+
+const greatvowelstr = `
+ ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
+time,iː,ɪi̯,.,.,əɪ̯,.,ʌɪ̯,.,.,.,aɪ̯
+see,eː,iː,.,.,.,iː,.,.,.,.,iː
+east,ɛː,e̞ː,.,eː,.,.,.,.,.,.,/
+name,aː,æː,.,ɛː,ɛː,.,eː,.,eɪ,.,eɪ
+day,æj,æːi,ɛːi,ɛː,/,.,.,.,.,.,/
+house,uː,ʊu̯,.,əu̯,.,.,au̯,.,.,.,aʊ̯
+moon,oː,uː,.,.,.,.,.,.,.,.,uː
+stone,ɔː,.,oː,.,.,o̞ː,.,oːu̯,.,oʊ̯,əʊ̯
+know,ɔu̯,ou̯,.,.,.,/,.,.,.,.,/
+law,au̯,aːʊ̯/ɔːʊ̯,.,aː/ɔː,.,.,o̞ː,.,.,.,ɔː
+new,eu̯/iu̯,i̯uː,.,.,.,juː,.,.,.,.,juː
+dew,ɛu̯,eːu̯,iu̯,i̯uː,.,.,.,.,.,.,/
+that,a,.,.,æ,.,.,.,.,.,.,æ
+fox,o̞,.,.,ɔ/ɒ,.,.,.,.,.,.,ɒ
+cut,ʊ,.,.,ɤ,.,.,ʌ̈,.,.,.,ʌ`;
+const greatvowel = function() {
+  let retn = Array(15);
+  let it = 0;
+  for(let line of greatvowelstr.split("\n")) {
+    retn[it] = line.split(",");
+    it++;
+  }
+  return retn;
+}();
+function createTable(tableData, src, classname) { // https://stackoverflow.com/questions/15164655/generate-html-table-from-2d-javascript-array
+  if(tableData === undefined) tableData = greatvowel;
+  if(classname === undefined) classname = "tbl-bin";
+  if(src === undefined) src = document.getElementsByClassName("defaultbin")[0];// document.body;
+  var table = document.createElement('table');
+  table.classList.add(classname);
+  var tableBody = document.createElement('tbody');
+
+  tableData.forEach(function(rowData) {
+    var row = document.createElement('tr');
+
+    rowData.forEach(function(cellData) {
+      var cell = document.createElement('td');
+      cell.appendChild(document.createTextNode(cellData));
+      row.appendChild(cell);
+    });
+
+    tableBody.appendChild(row);
+  });
+
+  table.appendChild(tableBody);
+  src.appendChild(table);
+}
+function removeAllChildren(node) {
+  if(node === undefined) node = document.getElementsByClassName("defaultbin")[0];
+  while (node.hasChildNodes()) {
+    node.removeChild(node.lastChild);
+  }
+}
+function makeSquare(label, clo, fro, ro) {
+  let parent = document.getElementsByClassName("squares")[0];
+  let newdiv = document.createElement('div');
+  newdiv.classList += `sqtest mvbl clo${clo} fro${fro} ro${ro}`;
+  parent.appendChild(newdiv);
+  let newspan = document.createElement('span');
+  newspan.classList.add("sqtext");
+  let txt = document.createTextNode(label);
+  newspan.appendChild(txt);
+  newdiv.appendChild(newspan);
+}
+function gvsUpdateSliderHover() {
+  let slider = document.getElementById("gvs-slide");
+  // let results = document.getElementsByClassName("results")[0];
+  // let eqvposx = results.offsetLeft + results.clientLeft + results.clientWidth * slider.value / 100;
+  // let eqvposy = results.offsetTop - window.pageYOffset;
+  // let highlightme = document.elementFromPoint(eqvposx, eqvposy);
+  // if(highlightme) {
+    // if(highlightme !== prevsliderhov) {
+      // a change in slider hovering item
+      // if(highlightme.classList.contains("speci")) { // only care if we're over a vowel
+        // if(prevsliderhov) prevsliderhov.onmouseout();
+
+        // if(highlightme.onmouseover) highlightme.onmouseover();
+        // prevsliderhov = highlightme;
+      // }
+    // }
+  // }
 }

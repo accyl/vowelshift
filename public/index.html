@@ -23,8 +23,8 @@
   		<div class="l closemid">Close-mid</div>
   		<div class="l openmid">Open-mid</div>
   		<div class="l open">Open</div>
-      <div class="squares dev">
-        <div class="sqtest mvbl">
+      <div class="squares">
+        <div class="clo1 fro0 ro1 sqtest mvbl">
           <!-- <div class="sqtest sqbox"></div> -->
           <span class="sqtext">house (1400)</span>
         </div>
@@ -51,32 +51,60 @@
   </div>
     <!-- Rounded switch -->
     <span>Toggle Advanced</span>
-      <input type="checkbox" id="checkbox">
+      <input type="checkbox" class="ipa-more">
+    <span>Great Vowel Shift</span>
+      <input type="checkbox" class="gvs-more" checked="true">
   </div>
   <br>
   <div class="labarea">
-    <div class="select-analysis"></div>
-    <div class="select-gvs"></div>
-    <div class="analysis-div">
-      <div class="microscope-div">
-        <input type="text" class="analyzer" name="inp" cols="5" rows="1" value="" placeholder="Paste IPA Symbols Here To Analyze">
+    <div class="selectbar removed">
+      <div class="s-analysis"></div>
+      <div class="s-gvs"></div>
+    </div>
+    <div class="gvs-div">
+      <div id="gvs-sli2">
+        <input class="slide" id="gvs-slide" type="range" step="50" value="2000" min='1400' max='2000' oninput="gvsUpdateSliderHover()" list="steplist">
+      </div>
+      <datalist id="steplist">
+        <option>1400</option>
+        <option>1450</option>
+        <option>1500</option>
+        <option>1550</option>
+        <option>1600</option>
+        <option>1650</option>
+        <option>1700</option>
+        <option>1750</option>
+        <option>1800</option>
+        <option>1850</option>
+        <option>1900</option>
+        <option>1950</option>
+        <option>2000</option>
+      </datalist><!--Chrome only. See https://stackoverflow.com/questions/26612700/ticks-for-type-range-html-input-->
+      <br> <!-- how the F do I create a line break in css-->
+      <div class="gvs-lbls">1400 1450 1500 1550 1600 1650 1700 1750 1800 1850 1900 1950 2000</div>
+    </div>
+    <div class="analysis">
+      <div class="microscope">
+        <input type="text" class="searchbar" name="inp" cols="5" rows="1" value="" placeholder="Paste IPA Symbols Here To Analyze">
     <!-- # du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə -->
       	<input type="button" class="submit-btn" value="Random Transcription" onclick="randomSampleInput()">
     	  <input type="button" class="submit-btn" value="submit" onclick="onSubmit()">
       </div>
-      <div class="analyte-div">
-        <div class="analyte"></div>
+      <div class="results-div">
+        <div class="results"></div>
         <div class="slide-div">
-          <input class="slide" type="range" step="0.2" value="0" oninput="updateSliderHover()">
+          <input class="slide" id="a-slide" type="range" step="0.2" value="0" oninput="updateSliderHover()">
         </div>
       </div>
     </div>
   </div>
+  <div class="defaultbin"></div>
   <div class="credits">
-    Sample vowel sentence <a href="https://www.reddit.com/r/linguistics/comments/lml34c/i_have_made_the_quick_brown_fox_of_vowel_phonemes/gnvwerf">by u/Peteat6.</a>
+    Great Vowel Shift table By <a href="https://en.wikipedia.org/wiki/User:Olaf_Simons" class="extiw" title="wikipedia:User:Olaf Simons">Olaf Simons</a> at <a href="https://en.wikipedia.org/wiki/" class="extiw" title="wikipedia:">English Wikipedia</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" title="Creative Commons Attribution-Share Alike 3.0">CC BY-SA 3.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=3900092">Link</a>
+    <br>Sample vowel sentence <a href="https://www.reddit.com/r/linguistics/comments/lml34c/i_have_made_the_quick_brown_fox_of_vowel_phonemes/gnvwerf">by u/Peteat6.</a>
     <br>Vowel trapezoid chart is by User:Denelson83 and is in public domain. See Wikimedia Commons
     <a href="https://commons.wikimedia.org/wiki/File:Blank_vowel_trapezoid.png">File:Blank vowel trapezoid.png</a>
-    <br>Elements have been inspired from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for interactive IPA,
+    <br>Elements inspired from <a href="https://ipachart.com">ipachart.com</a>, an excellent resource for interactive IPA,
     including vowels, consonants, affricates. IPA Vowel Chart is unaffiliated with ipachart.com.
   </div>
 <!-- <img src='ipa.png'></img> -->

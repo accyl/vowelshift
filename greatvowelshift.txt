@@ -7,6 +7,25 @@ hwɑn zəfɪrʊs eːk wɪθ hɪs sweːtə brɛːθ
 θə tɛndrə krɔppəs ɑnd θə jʊŋgə sʊnnə
 hɑθ ɪn θə rɑm hɪs halvə kuːrs ɪrʊnnə
 
+https://sites.fas.harvard.edu/~chaucer/teachslf/less-2.htm
+
+
+1400 1500 1550 1600 1650 1700 1750 1800 1850 1900 2000
+time iː ɪi̯ . . əɪ̯ . ʌɪ̯ . . . aɪ̯
+see eː iː . . . iː . . . . .
+east ɛː e̞ː . eː . iː
+name aː æː . ɛː ɛː . eː . eɪ . .
+day æj æːi ɛːi ɛː ɛː . eː . eɪ
+house uː ʊu̯ . əu̯ . . au̯ . . . aʊ̯
+moon oː uː
+stone ɔː . oː . . o̯ː . oːu̯ . oʊ̯  . əʊ̯
+know ɔu̯ ou̯ . . . o̞ː . oːu̯ . oʊ̯  . əʊ̯
+law au̯ aːʊ̯/ɔːʊ̯ . aː/ɔː . . o̞ː . . . . ɔː
+new eu̯/iu̯ i̯uː . . . juː
+dew ɛu̯ eːu̯ iu̯ i̯uː [new]
+that a . . æ
+fox o̞ . . ɔ/ɒ [ɒ]
+cut ʊ . . ɤ . . ʌ̈ [ʌ]
 
 1400 1500 1550 1600 1650 1700 1750 1800 1850 1900 2000
 time iː ɪi̯ . . əɪ̯ . ʌɪ̯ . . . aɪ̯
@@ -24,3 +43,28 @@ dew ɛu̯ eːu̯ iu̯ i̯uː [new]
 that a . . æ
 fox o̞ . . ɔ/ɒ [ɒ]
 cut ʊ . . ɤ . . ʌ̈ [ʌ]
+
+hwɑn θɑt ɑːprɪl wɪθ hɪs ʃuːrəs soːtə
+θə druːxt ɔf mɑrt͡ʃ haθ pɛːrsəd toː θə roːtə
+ɑnd bɑːðəd ɛvrɪ vɛɪn ɪn swit͡ʃ lɪkuːr
+ɔf hwɪt͡ʃ vɛrtɪʊ ɛnjɛndrəd ɪs θə fluːr
+hwɑn zəfɪrʊs eːk wɪθ hɪs sweːtə brɛːθ
+ɪnspiːrəd hɑθ ɪn ɛvrɪ hɔlt ɑnd hɛːθ
+θə tɛndrə krɔppəs ɑnd θə jʊŋgə sʊnnə
+hɑθ ɪn θə rɑm hɪs halvə kuːrs ɪrʊnnə
+
+time,iː,ɪi̯,.,.,əɪ̯,.,ʌɪ̯,.,.,.,aɪ̯
+see,eː,iː,.,.,.,iː,.,.,.,.,iː
+east,ɛː,e̞ː,.,eː,.,.,.,.,.,.,/
+name,aː,æː,.,ɛː,ɛː,.,eː,.,eɪ,.,eɪ
+day,æj,æːi,ɛːi,ɛː,/,.,.,.,.,.,/
+house,uː,ʊu̯,.,əu̯,.,.,au̯,.,.,.,aʊ̯
+moon,oː,uː,.,.,.,.,.,.,.,.,uː
+stone,ɔː,.,oː,.,.,o̞ː,.,oːu̯,.,oʊ̯,əʊ̯
+know,ɔu̯,ou̯,.,.,.,/,.,.,.,.,/
+law,au̯,aːʊ̯/ɔːʊ̯,.,aː/ɔː,.,.,o̞ː,.,.,.,ɔː
+new,eu̯/iu̯,i̯uː,.,.,.,juː,.,.,.,.,juː
+dew,ɛu̯,eːu̯,iu̯,i̯uː,.,.,.,.,.,.,/
+that,a,.,.,æ,.,.,.,.,.,.,æ
+fox,o̞,.,.,ɔ/ɒ,.,.,.,.,.,.,ɒ
+cut,ʊ,.,.,ɤ,.,.,ʌ̈,.,.,.,ʌ
