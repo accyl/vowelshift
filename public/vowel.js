@@ -588,9 +588,9 @@ const focii = function() {
   return retn;
 }();
 function fociiInit() {
-  focii.push(new Focus('house', 0, 3, 1));
-  focii.push(new Focus('name', 2, 0, 0));
-  focii.push(new Focus('dew', 2, 1, 0));
+  focii.push(new Focus('house', 0, 3, 1, 1400));
+  focii.push(new Focus('name', 2, 0, 0, 1400));
+  focii.push(new Focus('dew', 2, 1, 0, 1400));
 
 
 }
@@ -601,15 +601,19 @@ function gvsUpdateSlide() {
   // gvsdate = date;
   let change = false;
   if (date >= gvsdate + 50) {
-    gvsdate += 50; // go up in increments of 50
+    while(date >= gvsdate + 50) {
+      gvsdate += 50; // go up in increments of 50
+    }
     change = true;
   }
   else if (date <= gvsdate - 50) {
-    gvsdate -= 50;
+    while(date <= gvsdate - 50) {
+      gvsdate -= 50;
+    }
     change = true;
   }
   if(change) {
-    document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
+    // document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
     gvsUpdate(gvsdate);
   }
 }
@@ -640,17 +644,21 @@ function gvsUpdate(gvsdate) {
     }
     if(sound === undefined) {
       throw new TypeError("undefined? "+ arr);
-
     }
     let lbl = arr[0];
 
     let focus = focii.fromLabel(lbl);
     if(focus) {
-      let [fro, clo, ro] = charset.charToIdx(sound[0]); // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
-      focus.setPos(fro, clo, ro); // TODO give focus a setChar()
-      // TODO diphthongs just totally absent. TODO make diphthongs
-      focus.date = gvsdate;
-      focus.update();
+      let result = charset.charToIdx(sound[0]);
+      // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
+      // special characters that don't get parsed correctly: '/' 'j'
+      if(result) {
+        let [fro, clo, ro] = result;
+        focus.setPos(fro, clo, ro); // TODO give focus a setChar()
+        // TODO diphthongs just totally absent. TODO make diphthongs
+        focus.date = gvsdate;
+        focus.update();
+      }
     }
 
   }
