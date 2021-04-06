@@ -588,7 +588,11 @@ const focii = function() {
   return retn;
 }();
 function fociiInit() {
-  focii.push(new Focus('house', 0, 3, 1))
+  focii.push(new Focus('house', 0, 3, 1));
+  focii.push(new Focus('name', 2, 0, 0));
+  focii.push(new Focus('dew', 2, 1, 0));
+
+
 }
 var gvsdate=1400;
 function gvsUpdateSlide() {
@@ -613,17 +617,38 @@ function gvsUpdate(gvsdate) {
   if(!gvsdate) {
     throw new TypeError(`Invalid date ${gvsdate} in update`)
   }
-  let idx = greatvowel[0].indexOf(""+gvsdate); // idx 0 is purposely a blank so that the table lines up, but we also need to skip the header everytime so it cancels each other out
+  let idx = greatvowel[0].indexOf(""+gvsdate);
+  // idx 0 is purposely a blank so that the table lines up,
+  //but we also need to skip the header everytime so it cancels each other out
+  if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
+  if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
+  if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
   for(j=1;j<greatvowel.length;j++) {
     let arr = greatvowel[j];
     let sound = arr[idx];
-    if(sound === '.') continue; // TODO this doesn't quite work when you're working backwards. What I think I have to do is I have to go back and replace all the dots in the big table with the actual values. Or if I see a dot I have to go back and calculate the furthest left still correct one there is.
+    let k=idx;
+    while(sound === '.') {
+      // Simply ignoring doesn't quite work when you're working backwards.
+      // What I think I have to do is if I see a dot I have to go back and
+      // until there is a non-dot one.
+      k--;
+      if(k<1) {
+        throw new TypeError("there's a dot where there shouldn't be? "+ arr);
+      }
+      sound = arr[k];
+
+    }
+    if(sound === undefined) {
+      throw new TypeError("undefined? "+ arr);
+
+    }
     let lbl = arr[0];
 
     let focus = focii.fromLabel(lbl);
     if(focus) {
       let [fro, clo, ro] = charset.charToIdx(sound[0]); // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
       focus.setPos(fro, clo, ro); // TODO give focus a setChar()
+      // TODO diphthongs just totally absent. TODO make diphthongs
       focus.date = gvsdate;
       focus.update();
     }
