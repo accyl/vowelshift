@@ -197,6 +197,7 @@ function init() { // called on page load
     }
   });
   doGVS();
+  fociiInit();
 }
 function createBoxes(charsetin) {
   if(charsetin === undefined) {
@@ -231,7 +232,8 @@ function removeAdvBoxes() {
 }
 function addVowel(divclass, str, frontedness, closedness, rounded, extra='') {
   document.getElementsByClassName("movables")[0].innerHTML
-   += `<div class="${divclass}" ${extra} style="--fronted: ${frontedness}/2; --closed: ${closedness}/3; --rounded: ${rounded};">${str}</div>`
+   += `<div class="${divclass} fro${frontedness} clo${closedness} ro${rounded}" ${extra}>${str}</div>`
+   // style="--fronted: ${frontedness}/2; --closed: ${closedness}/3; --rounded: ${rounded};"
 }
 function addBox(char, frontedness, closedness, rounded, adv=false) {
   addVowel(`mvbl ixv ipa${adv ? " adv" : ""}`, char,
@@ -458,8 +460,7 @@ function updateSliderHover() {
 
 }
 
-const greatvowelstr = `
- ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
+const greatvowelstr = ` ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
 time,iː,ɪi̯,.,.,əɪ̯,.,ʌɪ̯,.,.,.,aɪ̯
 see,eː,iː,.,.,.,iː,.,.,.,.,iː
 east,ɛː,e̞ː,.,eː,.,.,.,.,.,.,/
@@ -513,32 +514,120 @@ function removeAllChildren(node) {
     node.removeChild(node.lastChild);
   }
 }
-function makeSquare(label, clo, fro, ro) {
-  let parent = document.getElementsByClassName("squares")[0];
-  let newdiv = document.createElement('div');
-  newdiv.classList += `sqtest mvbl clo${clo} fro${fro} ro${ro}`;
-  parent.appendChild(newdiv);
-  let newspan = document.createElement('span');
-  newspan.classList.add("sqtext");
-  let txt = document.createTextNode(label);
-  newspan.appendChild(txt);
-  newdiv.appendChild(newspan);
-}
-function gvsUpdateSliderHover() {
-  let slider = document.getElementById("gvs-slide");
-  // let results = document.getElementsByClassName("results")[0];
-  // let eqvposx = results.offsetLeft + results.clientLeft + results.clientWidth * slider.value / 100;
-  // let eqvposy = results.offsetTop - window.pageYOffset;
-  // let highlightme = document.elementFromPoint(eqvposx, eqvposy);
-  // if(highlightme) {
-    // if(highlightme !== prevsliderhov) {
-      // a change in slider hovering item
-      // if(highlightme.classList.contains("speci")) { // only care if we're over a vowel
-        // if(prevsliderhov) prevsliderhov.onmouseout();
+class Focus {
+  constructor(lbl, fro, clo, ro, date) {
+    this.lbl = lbl;
+    this.date = date;
+    this.clo = clo;
+    this.fro = fro;
+    this.ro = ro;
+    this.classid = `focus mvbl lbl-${lbl}`;
+    this.classfull = this.classid + ` fro${fro} clo${clo} ro${ro}`;
+    // this.queryid = "." + this.classid.replace(" ", ".");
+    this.embed();
+  }
+  fullLabel() {
+    return this.lbl + (this.date ? ` (${this.date})`:"");
+  }
+  embed(parent) {
+    let fociis = undefined;
+    if(parent === undefined) {
+      fociis = document.getElementsByClassName("focii")[0];
+    } else {
+      fociis = parent;
+    }
+    let div = document.createElement('div');
+    let span = document.createElement('span'); // make new
+    fociis.appendChild(div);
+    div.appendChild(span);
+    span.classList.add("foclbl");
 
-        // if(highlightme.onmouseover) highlightme.onmouseover();
-        // prevsliderhov = highlightme;
-      // }
-    // }
-  // }
+    span.textContent = this.fullLabel();
+    div.classList += this.classfull; // TODO use classList addall
+
+    // TODO storing these variables globally in cache seems like a bad idea - vulnerabilities
+  }
+  update() {
+    // let me = document.querySelectorAll(this.queryid);
+    let me = document.getElementsByClassName(this.classid)[0];
+    let span = me.children[0];
+
+    span.textContent = this.fullLabel();
+    this.classfull = this.classid + ` fro${this.fro} clo${this.clo} ro${this.ro}`; // TODO perhaps go back to css styling only?
+    me.classList = this.classfull;
+    return me;
+  }
+  setPos(fro, clo, ro) {
+    if(fro !== undefined) this.fro = fro;
+    if(clo !== undefined) this.clo = clo;
+    if(ro !== undefined) this.ro = ro;
+    this.classfull = this.classid + ` fro${this.fro} clo${this.clo} ro${this.ro}`;
+  }
+}
+const focii = function() {
+  let retn = [];
+  retn.fromLabel = function(str) {
+    for(let focus of this) {
+      if(focus.lbl === str) {
+        return focus;
+      }
+    }
+  };
+  Object.defineProperty(retn, 'date', {
+    get: function() {
+      return retn._date;
+    },
+    set: function(num) {
+      for(let focus of this) {
+        focus.date = num;
+        focus.update();
+      }
+      retn._date = num;
+    }
+  });
+  return retn;
+}();
+function fociiInit() {
+  focii.push(new Focus('house', 0, 3, 1))
+}
+var gvsdate=1400;
+function gvsUpdateSlide() {
+  let slider = document.getElementById("gvs-slide");
+  let date = slider.value;
+  // gvsdate = date;
+  let change = false;
+  if (date >= gvsdate + 50) {
+    gvsdate += 50; // go up in increments of 50
+    change = true;
+  }
+  else if (date <= gvsdate - 50) {
+    gvsdate -= 50;
+    change = true;
+  }
+  if(change) {
+    document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
+    gvsUpdate(gvsdate);
+  }
+}
+function gvsUpdate(gvsdate) {
+  if(!gvsdate) {
+    throw new TypeError(`Invalid date ${gvsdate} in update`)
+  }
+  let idx = greatvowel[0].indexOf(""+gvsdate); // idx 0 is purposely a blank so that the table lines up, but we also need to skip the header everytime so it cancels each other out
+  for(j=1;j<greatvowel.length;j++) {
+    let arr = greatvowel[j];
+    let sound = arr[idx];
+    if(sound === '.') continue; // TODO this doesn't quite work when you're working backwards. What I think I have to do is I have to go back and replace all the dots in the big table with the actual values. Or if I see a dot I have to go back and calculate the furthest left still correct one there is.
+    let lbl = arr[0];
+
+    let focus = focii.fromLabel(lbl);
+    if(focus) {
+      let [fro, clo, ro] = charset.charToIdx(sound[0]); // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
+      focus.setPos(fro, clo, ro); // TODO give focus a setChar()
+      focus.date = gvsdate;
+      focus.update();
+    }
+
+  }
+  focii.date = gvsdate;
 }
