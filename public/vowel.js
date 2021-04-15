@@ -26,7 +26,6 @@ class IPACharset {
     }
   }
   charToIdx(charseq, rfncstr=undefined) {
-
     // REQUIREMENT: In rfncstr,
     //  all chars must appear once and only once.
     // EXCEPTION: the blank char '.' may appear more than once.
@@ -40,7 +39,6 @@ class IPACharset {
     // check for those two-char adjacencies, indicating
     // both rounded and unrounded version.
     // Thus roundedness must be 0.5;
-
     if(rfncstr === undefined) {
       rfncstr = this.rfncstr;
     }
@@ -142,7 +140,6 @@ class IPACharsetAdvanced extends IPACharsetBasic{
           console.log(`char not found ${charseq}`);
           return;
         }
-
       }
     } else {
       return super.charToIdx(charseq);
@@ -197,7 +194,7 @@ function init() { // called on page load
     }
   });
   doGVS();
-  fociiInit();
+  fociiInit([0,1,1,1,1,1,1,1,0,0,0,0,1,1,1]);
 }
 function createBoxes(charsetin) {
   if(charsetin === undefined) {
@@ -390,7 +387,6 @@ function idxToElement(frontedness, closedness, rounded) {
   if(rounded === 0.5) {
     // rounded = 0;
     // nah it's initialized by charToIdx() so it expects 0.5
-
   }
   // actually some don't work.
   // For instance the schwa ə, if referred to as
@@ -436,7 +432,6 @@ sample["chaucer"] = "hwɑn θɑt ɑːprɪl wɪθ hɪs ʃuːrəs soːtə"+
 sample["range"] = "# du kʊk ʌp mɔː brɒθ, fɜrmər, fast ænd lɛt ɪt hiːt. bre͡ɪz, bɔ͡ɪl, fra͡ɪ. na͡ʊ ʃo͡ʊ re͡ə bɪ͡ə kjʊ͡ə";
 function randomSampleInput() {
   document.getElementsByClassName("searchbar")[0].value = sample["range"];
-
 }
 var prevsliderhov = undefined;
 function updateSliderHover() {
@@ -460,10 +455,10 @@ function updateSliderHover() {
 
 }
 
-const greatvowelstr = ` ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
+const gvs_str = ` ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
 time,iː,ɪi̯,.,.,əɪ̯,.,ʌɪ̯,.,.,.,aɪ̯
 see,eː,iː,.,.,.,iː,.,.,.,.,iː
-east,ɛː,e̞ː,.,eː,.,.,.,.,.,.,/
+east,ɛː,e̞ː,.,eː,.,/,.,.,.,.,/
 name,aː,æː,.,ɛː,ɛː,.,eː,.,eɪ,.,eɪ
 day,æj,æːi,ɛːi,ɛː,/,.,.,.,.,.,/
 house,uː,ʊu̯,.,əu̯,.,.,au̯,.,.,.,aʊ̯
@@ -476,17 +471,17 @@ dew,ɛu̯,eːu̯,iu̯,i̯uː,.,.,.,.,.,.,/
 that,a,.,.,æ,.,.,.,.,.,.,æ
 fox,o̞,.,.,ɔ/ɒ,.,.,.,.,.,.,ɒ
 cut,ʊ,.,.,ɤ,.,.,ʌ̈,.,.,.,ʌ`;
-const greatvowel = function() {
+const gvsarr = function() {
   let retn = Array(15);
   let it = 0;
-  for(let line of greatvowelstr.split("\n")) {
+  for(let line of gvs_str.split("\n")) {
     retn[it] = line.split(",");
     it++;
   }
   return retn;
 }();
 function createTable(tableData, src, classname) { // https://stackoverflow.com/questions/15164655/generate-html-table-from-2d-javascript-array
-  if(tableData === undefined) tableData = greatvowel;
+  if(tableData === undefined) tableData = gvsarr;
   if(classname === undefined) classname = "tbl-bin";
   if(src === undefined) src = document.getElementsByClassName("defaultbin")[0];// document.body;
   var table = document.createElement('table');
@@ -524,10 +519,12 @@ class Focus {
     this.classid = `focus mvbl lbl-${lbl}`;
     this.classfull = this.classid + ` fro${fro} clo${clo} ro${ro}`;
     // this.queryid = "." + this.classid.replace(" ", ".");
+    this.hidden = false;
+    this.subordinating = "";
     this.embed();
   }
   fullLabel() {
-    return this.lbl + (this.date ? ` (${this.date})`:"");
+    return this.hidden ? "" : this.lbl + this.subordinating + (this.date ? ` (${this.date})`:"");
   }
   embed(parent) {
     let fociis = undefined;
@@ -544,16 +541,16 @@ class Focus {
 
     span.textContent = this.fullLabel();
     div.classList += this.classfull; // TODO use classList addall
-
     // TODO storing these variables globally in cache seems like a bad idea - vulnerabilities
   }
   update() {
     // let me = document.querySelectorAll(this.queryid);
-    let me = document.getElementsByClassName(this.classid)[0];
-    let span = me.children[0];
+    // if(this.hidden) return; doesn't let the classes update
+    // this.setPos(); // update classfull. TODO perhaps go back to css styling only?
 
+    let me = this.embedPos();
+    let span = me.children[0];
     span.textContent = this.fullLabel();
-    this.classfull = this.classid + ` fro${this.fro} clo${this.clo} ro${this.ro}`; // TODO perhaps go back to css styling only?
     me.classList = this.classfull;
     return me;
   }
@@ -561,7 +558,34 @@ class Focus {
     if(fro !== undefined) this.fro = fro;
     if(clo !== undefined) this.clo = clo;
     if(ro !== undefined) this.ro = ro;
-    this.classfull = this.classid + ` fro${this.fro} clo${this.clo} ro${this.ro}`;
+    // if(!this.hidden) this.classfull = this.classid + ` fro${this.fro} clo${this.clo} ro${this.ro}`;
+  }
+  embedPos(jsObjMe) {
+    if(jsObjMe === undefined) {
+      jsObjMe = document.getElementsByClassName(this.classid)[0];
+    }
+    jsObjMe.style.setProperty("--fronted", this.fro/2);
+    jsObjMe.style.setProperty("--closed", this.clo/3);
+    jsObjMe.style.setProperty("--rounded", this.ro);
+    return jsObjMe;
+  }
+  hide() {
+    this.hidden = true;
+    this.classfull = this.classid + " removed";
+  }
+  unhide() {
+    this.hidden = false;
+    this.update();
+  }
+  merge(subordinate) {
+    this.unhide();
+    subordinate.hide();
+    this.subordinating = ", " + subordinate.lbl;
+  }
+  unmerge(subordinate) {
+    this.unhide();
+    subordinate.unhide();
+    this.subordinating = "";
   }
 }
 const focii = function() {
@@ -577,27 +601,43 @@ const focii = function() {
     get: function() {
       return retn._date;
     },
-    set: function(num) {
-      for(let focus of this) {
-        focus.date = num;
-        focus.update();
+    set: function(date) {
+      for(let i=1; i<this.length;i++) {
+        // focus.date = num;
+        // focus.update();
+        updateWord(i, date);
       }
-      retn._date = num;
+      retn._date = date;
     }
   });
   return retn;
 }();
-function fociiInit() {
-  focii.push(new Focus('house', 0, 3, 1, 1400));
-  focii.push(new Focus('name', 2, 0, 0, 1400));
-  focii.push(new Focus('dew', 2, 1, 0, 1400));
-
-
+function fociiInit(tape) {
+  // focii.push(new Focus('house', 0, 3, 1, 1400));
+  // focii.push(new Focus('name', 2, 0, 0, 1400));
+  // focii.push(new Focus('dew', 2, 1, 0, 1400));
+  for(let i=1;i<gvsarr.length;i++) {
+    let word = gvsarr[i][0];
+    focii.push(new Focus(word, 0, 0, 0, -1));
+  }
+  focii.date = 1400;
+  if(tape) {
+    for (let i = 0; i < gvsarr.length; i ++) {
+      if(!tape[i]) {
+        focii[i].hide();
+        focii[i].update();
+      }
+    }
+  }
+  return;
+  gvsUpdate(1400);
 }
 var gvsdate=1400;
 function gvsUpdateSlide() {
   let slider = document.getElementById("gvs-slide");
   let date = slider.value;
+  focii.date = date;
+  return;
   // gvsdate = date;
   let change = false;
   if (date >= gvsdate + 50) {
@@ -621,16 +661,24 @@ function gvsUpdate(gvsdate) {
   if(!gvsdate) {
     throw new TypeError(`Invalid date ${gvsdate} in update`)
   }
-  let idx = greatvowel[0].indexOf(""+gvsdate);
+  let idx = gvsarr[0].indexOf(""+gvsdate);
   // idx 0 is purposely a blank so that the table lines up,
   //but we also need to skip the header everytime so it cancels each other out
   if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
   if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
   if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
-  for(j=1;j<greatvowel.length;j++) {
-    let arr = greatvowel[j];
-    let sound = arr[idx];
-    let k=idx;
+  for(j=1;j<gvsarr.length;j++) {
+    positionWord(j, idx);
+  }
+  focii.date = gvsdate;
+}
+function positionWord(wordidx, dateidx) {
+  let j=wordidx;
+  let k=dateidx;
+  let arr = gvsarr[j];
+  let sound = arr[k];
+  let date = arr[0][dateidx]; // unused
+  while(sound === '.' || sound === '/') {
     while(sound === '.') {
       // Simply ignoring doesn't quite work when you're working backwards.
       // What I think I have to do is if I see a dot I have to go back and
@@ -640,27 +688,77 @@ function gvsUpdate(gvsdate) {
         throw new TypeError("there's a dot where there shouldn't be? "+ arr);
       }
       sound = arr[k];
-
     }
-    if(sound === undefined) {
-      throw new TypeError("undefined? "+ arr);
+    while(sound === '/') {
+      j--;
+      arr = gvsarr[j]; // go to the prev row
+      sound = arr[k];
     }
-    let lbl = arr[0];
-
-    let focus = focii.fromLabel(lbl);
-    if(focus) {
-      let result = charset.charToIdx(sound[0]);
-      // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
-      // special characters that don't get parsed correctly: '/' 'j'
-      if(result) {
-        let [fro, clo, ro] = result;
-        focus.setPos(fro, clo, ro); // TODO give focus a setChar()
-        // TODO diphthongs just totally absent. TODO make diphthongs
-        focus.date = gvsdate;
-        focus.update();
-      }
-    }
-
   }
-  focii.date = gvsdate;
+  if(sound === undefined) throw new TypeError("undefined? "+ arr);
+  if(k <= 0 || j <= 0) throw new TypeError(`Out of bounds? j=${j} k=${k} ${arr}`);
+  let lbl = gvsarr[wordidx][0]; // get the original label
+
+  let focus = focii.fromLabel(lbl);
+  if(focus) {
+    let str = gvsarr[j][k];
+
+    // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
+    // special characters that don't get parsed correctly: '/' 'j'
+    // let result = charset.charToIdx(str[0]);
+    let result = charseqToPos(str);
+
+    if(result) {
+      return result;
+    }
+  }
+
+}
+function updateWord(wordidx, date) {
+  // Interpolation
+  let fh = -1;
+  let exact = false;
+  for(let i=0;i<gvsarr[0].length;i++) {
+    if(gvsarr[0][i] == date) {
+      exact = true;
+      fh = i;
+      break;
+    } else if(gvsarr[0][i] > date) {
+      fh = i;
+      break;
+    }
+  }
+  if(fh !== -1) {
+    var [fro, clo, ro] = [1,1,1];
+    if(exact) {
+      // let date1 = gvs[0][fh];
+      var [fro, clo, ro] = positionWord(wordidx, fh);
+    } else {
+      // found a time scale
+      let date1 = gvsarr[0][fh-1];
+      let date2 = gvsarr[0][fh];
+      let ddate = date - date1;
+      console.assert(ddate <= date2, `Dates not in range ${date1} ${date} ${date2}`);
+      let dfrac = ddate / (date2 - date1);
+      let [fro1, clo1, ro1] = positionWord(wordidx, fh-1);
+      let [fro2, clo2, ro2] = positionWord(wordidx, fh);
+      var [fro, clo, ro] = [fro1 + (fro2-fro1) * dfrac, clo1 + (clo2 - clo1) * dfrac, ro1 + (ro2-ro1) * dfrac];
+    }
+    let focus = focii[wordidx - 1];
+    focus.setPos(fro, clo, ro); // TODO give focus a setChar()
+    // TODO diphthongs just totally absent. TODO make diphthongs
+    focus.date = date;
+    focus.update();
+  } else {
+    throw new TypeError(`date ${date} outside of expected time range?`);
+  }
+
+
+}
+function charseqToPos(charseq) {
+  charseq = charseq.replace("ː", "");
+  charseq = charseq.replace("j", "i");
+
+  let result = charset.charToIdx(charseq[0]);
+  return result;
 }
