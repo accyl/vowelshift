@@ -571,6 +571,14 @@ const gvspos = function() {
   }
   return retn;
 }();
+const gvssquished = function() { // at a given idx, explain whether to hide the dates to make more room so divs don't overlap
+  let ret = Array(15);
+  for(let i=1;i<gvspos.length;i++) {
+    for(let j=1;j<gvspos[i].length;j++) {
+      
+    }
+  }
+}();
 function positionWordCached(wordidx, dateidx) {
   if (wordidx <= 0 || dateidx <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${wordidx} dateidx=${dateidx} ${gvsarr[wordidx]}`);
 
