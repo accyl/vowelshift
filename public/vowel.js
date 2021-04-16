@@ -454,7 +454,35 @@ function updateSliderHover() {
   }
 
 }
+function createTable(tableData, src, classname) { // https://stackoverflow.com/questions/15164655/generate-html-table-from-2d-javascript-array
+  if (tableData === undefined) tableData = gvsarr;
+  if (classname === undefined) classname = "tbl-bin";
+  if (src === undefined) src = document.getElementsByClassName("defaultbin")[0];// document.body;
+  var table = document.createElement('table');
+  table.classList.add(classname);
+  var tableBody = document.createElement('tbody');
 
+  tableData.forEach(function (rowData) {
+    var row = document.createElement('tr');
+
+    rowData.forEach(function (cellData) {
+      var cell = document.createElement('td');
+      cell.appendChild(document.createTextNode(cellData));
+      row.appendChild(cell);
+    });
+
+    tableBody.appendChild(row);
+  });
+
+  table.appendChild(tableBody);
+  src.appendChild(table);
+}
+function removeAllChildren(node) {
+  if (node === undefined) node = document.getElementsByClassName("defaultbin")[0];
+  while (node.hasChildNodes()) {
+    node.removeChild(node.lastChild);
+  }
+}
 const gvs_str = ` ,1400,1500,1550,1600,1650,1700,1750,1800,1850,1900,2000
 time,iː,ɪi̯,.,.,əɪ̯,.,ʌɪ̯,.,.,.,aɪ̯
 see,eː,iː,.,.,.,iː,.,.,.,.,iː
@@ -480,34 +508,73 @@ const gvsarr = function() {
   }
   return retn;
 }();
-function createTable(tableData, src, classname) { // https://stackoverflow.com/questions/15164655/generate-html-table-from-2d-javascript-array
-  if(tableData === undefined) tableData = gvsarr;
-  if(classname === undefined) classname = "tbl-bin";
-  if(src === undefined) src = document.getElementsByClassName("defaultbin")[0];// document.body;
-  var table = document.createElement('table');
-  table.classList.add(classname);
-  var tableBody = document.createElement('tbody');
+function positionWord(wordidx, dateidx) {
+  // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
+  // TODO cache this into an EffectiveTable :tm:
+  let j = wordidx;
+  let k = dateidx;
+  if (k <= 0 || j <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${j} dateidx=${k} ${gvsarr[j]}`);
 
-  tableData.forEach(function(rowData) {
-    var row = document.createElement('tr');
-
-    rowData.forEach(function(cellData) {
-      var cell = document.createElement('td');
-      cell.appendChild(document.createTextNode(cellData));
-      row.appendChild(cell);
-    });
-
-    tableBody.appendChild(row);
-  });
-
-  table.appendChild(tableBody);
-  src.appendChild(table);
-}
-function removeAllChildren(node) {
-  if(node === undefined) node = document.getElementsByClassName("defaultbin")[0];
-  while (node.hasChildNodes()) {
-    node.removeChild(node.lastChild);
+  let arr = gvsarr[j];
+  let sound = arr[k];
+  // let date = arr[0][dateidx]; // unused
+  while (sound === '.' || sound === '/') {
+    while (sound === '.') {
+      // Simply ignoring doesn't quite work when you're working backwards.
+      // What I think I have to do is if I see a dot I have to go back and
+      // until there is a non-dot one.
+      k--;
+      if (k < 1) {
+        throw new TypeError("there's a dot where there shouldn't be? " + arr);
+      }
+      sound = arr[k];
+    }
+    while (sound === '/') {
+      j--;
+      arr = gvsarr[j]; // go to the prev row
+      k = dateidx; // we have to start back on the original date, because if we go up that means that
+      // Example: name/day, notice what the correct answer for day is for 1750.
+      // TODO: mark for merger.
+      sound = arr[k];
+    }
   }
+  if (sound === undefined) throw new TypeError("undefined? " + arr);
+  // let lbl = gvsarr[wordidx][0]; // get the original label
+
+  // let focus = focii.fromLabel(lbl);
+  // if (focus) {
+    let str = gvsarr[j][k];
+
+    let result = charseqToPos(str);
+
+    if (result) {
+      return result;
+    }
+  // }
+
+}
+const gvspos = function() {
+  let retn = Array(15);
+  for (let i=0;i<gvsarr.length;i++) {
+    let line = gvsarr[i];
+    retn[i] = Array(line.length);
+    let copyline = retn[i];
+    if(i >= 1) {
+      for(let j=0;j<line.length;j++) {
+        if(j >= 1) {
+          copyline[j] = positionWord(i, j); // cache the positions of all the words
+        } else {
+          copyline[j] = undefined;
+        }
+      }
+    }
+  }
+  return retn;
+}();
+function positionWordCached(wordidx, dateidx) {
+  if (wordidx <= 0 || dateidx <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${wordidx} dateidx=${dateidx} ${gvsarr[wordidx]}`);
+
+  return gvspos[wordidx][dateidx];
 }
 class Focus {
   constructor(lbl, fro, clo, ro, date) {
@@ -672,50 +739,7 @@ function gvsUpdate(focii, gvsdate) {
   // }
   // focii.date = gvsdate;
 }
-function positionWord(wordidx, dateidx) {
-    // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
-  // TODO cache this into an EffectiveTable :tm:
-  let j=wordidx;
-  let k=dateidx;
-  let arr = gvsarr[j];
-  let sound = arr[k];
-  // let date = arr[0][dateidx]; // unused
-  while(sound === '.' || sound === '/') {
-    while(sound === '.') {
-      // Simply ignoring doesn't quite work when you're working backwards.
-      // What I think I have to do is if I see a dot I have to go back and
-      // until there is a non-dot one.
-      k--;
-      if(k<1) {
-        throw new TypeError("there's a dot where there shouldn't be? "+ arr);
-      }
-      sound = arr[k];
-    }
-    while(sound === '/') {
-      j--;
-      arr = gvsarr[j]; // go to the prev row
-      k=dateidx; // we have to start back on the original date, because if we go up that means that
-      // Example: name/day, notice what the correct answer for day is for 1750.
-      // TODO: mark for merger.
-      sound = arr[k];
-    }
-  }
-  if(sound === undefined) throw new TypeError("undefined? "+ arr);
-  if(k <= 0 || j <= 0) throw new TypeError(`Out of bounds? j=${j} k=${k} ${arr}`);
-  let lbl = gvsarr[wordidx][0]; // get the original label
 
-  let focus = focii.fromLabel(lbl);
-  if(focus) {
-    let str = gvsarr[j][k];
-
-    let result = charseqToPos(str);
-
-    if(result) {
-      return result;
-    }
-  }
-
-}
 function updateWords(date, idxStart, idxEnd) {
   // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
   // Interpolation
@@ -742,7 +766,7 @@ function updateWords(date, idxStart, idxEnd) {
       var [fro, clo, ro] = [1, 1, 1];
       if (exact) {
         // let date1 = gvs[0][fh];
-        var [fro, clo, ro] = positionWord(wordidx, fh);
+        var [fro, clo, ro] = positionWordCached(wordidx, fh);
       } else {
         // found a time scale
         let date1 = gvsarr[0][fh - 1];
@@ -753,8 +777,8 @@ function updateWords(date, idxStart, idxEnd) {
         dfrac = (dfrac < 0.3) ? 0 : (dfrac < 0.7 ? (dfrac - 0.3) / 0.4 : 1); // NON-linear interpolation. 
         // means that it stays at the endpoints - 0 & 1 - for longer so it's easier to see what the IPA symbols are.
         // akin to a tanh function - it's a nonlinearity
-        let [fro1, clo1, ro1] = positionWord(wordidx, fh - 1);
-        let [fro2, clo2, ro2] = positionWord(wordidx, fh);
+        let [fro1, clo1, ro1] = positionWordCached(wordidx, fh - 1);
+        let [fro2, clo2, ro2] = positionWordCached(wordidx, fh);
         var [fro, clo, ro] = [fro1 + (fro2 - fro1) * dfrac, clo1 + (clo2 - clo1) * dfrac, ro1 + (ro2 - ro1) * dfrac];
       }
       let focus = focii[wordidx - 1];
