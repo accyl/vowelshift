@@ -525,6 +525,7 @@ class Focus {
   }
   fullLabel() {
     return this.hidden ? "" : this.lbl + this.subordinating + (this.date ? ` (${this.date})`:"");
+    // return this.hidden ? "" : this.lbl + "  "; // remove the date because it takes up valuable space
   }
   embed(parent) {
     let fociis = undefined;
@@ -541,7 +542,7 @@ class Focus {
 
     span.textContent = this.fullLabel();
     div.classList += this.classfull; // TODO use classList addall
-    // TODO storing these variables globally in cache seems like a bad idea - vulnerabilities
+    // storing these variables globally in cache seems like a bad idea - vulnerabilities
   }
   update() {
     // let me = document.querySelectorAll(this.queryid);
@@ -602,12 +603,7 @@ const focii = function() {
       return retn._date;
     },
     set: function(date) {
-      for(let i=1; i<this.length;i++) {
-        // focus.date = num;
-        // focus.update();
-        updateWord(i, date);
-      }
-      retn._date = date;
+      return gvsUpdate(this, date);
     }
   });
   return retn;
@@ -622,7 +618,7 @@ function fociiInit(tape) {
   }
   focii.date = 1400;
   if(tape) {
-    for (let i = 0; i < gvsarr.length; i ++) {
+    for (let i = 0; i < focii.length; i ++) {
       if(!tape[i]) {
         focii[i].hide();
         focii[i].update();
@@ -639,45 +635,51 @@ function gvsUpdateSlide() {
   focii.date = date;
   return;
   // gvsdate = date;
-  let change = false;
-  if (date >= gvsdate + 50) {
-    while(date >= gvsdate + 50) {
-      gvsdate += 50; // go up in increments of 50
-    }
-    change = true;
-  }
-  else if (date <= gvsdate - 50) {
-    while(date <= gvsdate - 50) {
-      gvsdate -= 50;
-    }
-    change = true;
-  }
-  if(change) {
-    // document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
-    gvsUpdate(gvsdate);
-  }
+  // let change = false;
+  // if (date >= gvsdate + 50) {
+  //   while(date >= gvsdate + 50) {
+  //     gvsdate += 50; // go up in increments of 50
+  //   }
+  //   change = true;
+  // }
+  // else if (date <= gvsdate - 50) {
+  //   while(date <= gvsdate - 50) {
+  //     gvsdate -= 50;
+  //   }
+  //   change = true;
+  // }
+  // if(change) {
+  //   // document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
+  //   gvsUpdate(gvsdate);
+  // }
 }
-function gvsUpdate(gvsdate) {
-  if(!gvsdate) {
-    throw new TypeError(`Invalid date ${gvsdate} in update`)
-  }
-  let idx = gvsarr[0].indexOf(""+gvsdate);
-  // idx 0 is purposely a blank so that the table lines up,
-  //but we also need to skip the header everytime so it cancels each other out
-  if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
-  if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
-  if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
-  for(j=1;j<gvsarr.length;j++) {
-    positionWord(j, idx);
-  }
-  focii.date = gvsdate;
+function gvsUpdate(focii, gvsdate) {
+  document.getElementById("gvs-date-display").innerText = "(" + gvsdate + ")";
+  updateWords(gvsdate);
+  return;
+  // retn._date = date;
+  // if(!gvsdate) {
+  //   throw new TypeError(`Invalid date ${gvsdate} in update`)
+  // }
+  // let idx = gvsarr[0].indexOf(""+gvsdate);
+  // // idx 0 is purposely a blank so that the table lines up,
+  // //but we also need to skip the header everytime so it cancels each other out
+  // if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
+  // if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
+  // if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
+  // for(j=1;j<gvsarr.length;j++) {
+  //   positionWord(j, idx);
+  // }
+  // focii.date = gvsdate;
 }
 function positionWord(wordidx, dateidx) {
+    // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
+  // TODO cache this into an EffectiveTable :tm:
   let j=wordidx;
   let k=dateidx;
   let arr = gvsarr[j];
   let sound = arr[k];
-  let date = arr[0][dateidx]; // unused
+  // let date = arr[0][dateidx]; // unused
   while(sound === '.' || sound === '/') {
     while(sound === '.') {
       // Simply ignoring doesn't quite work when you're working backwards.
@@ -692,6 +694,9 @@ function positionWord(wordidx, dateidx) {
     while(sound === '/') {
       j--;
       arr = gvsarr[j]; // go to the prev row
+      k=dateidx; // we have to start back on the original date, because if we go up that means that
+      // Example: name/day, notice what the correct answer for day is for 1750.
+      // TODO: mark for merger.
       sound = arr[k];
     }
   }
@@ -703,9 +708,6 @@ function positionWord(wordidx, dateidx) {
   if(focus) {
     let str = gvsarr[j][k];
 
-    // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
-    // special characters that don't get parsed correctly: '/' 'j'
-    // let result = charset.charToIdx(str[0]);
     let result = charseqToPos(str);
 
     if(result) {
@@ -714,51 +716,76 @@ function positionWord(wordidx, dateidx) {
   }
 
 }
-function updateWord(wordidx, date) {
+function updateWords(date, idxStart, idxEnd) {
+  // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
   // Interpolation
   let fh = -1;
   let exact = false;
-  for(let i=0;i<gvsarr[0].length;i++) {
-    if(gvsarr[0][i] == date) {
+  for (let i = 0; i < gvsarr[0].length; i++) {
+    if (gvsarr[0][i] == date) {
       exact = true;
       fh = i;
       break;
-    } else if(gvsarr[0][i] > date) {
+    } else if (gvsarr[0][i] > date) {
       fh = i;
       break;
     }
   }
-  if(fh !== -1) {
-    var [fro, clo, ro] = [1,1,1];
-    if(exact) {
-      // let date1 = gvs[0][fh];
-      var [fro, clo, ro] = positionWord(wordidx, fh);
+  if(idxStart === undefined) idxStart = 0;
+  if(idxEnd === undefined) idxEnd = focii.length;
+  for (let i = idxStart; i < idxEnd; i++) {
+    // focus.date = num;
+    // focus.update();
+    // updateWord(i + 1, gvsdate);
+    let wordidx = i + 1; // for some reason I started wordidxs off at 1 because of the weird header offset
+    if (fh !== -1) {
+      var [fro, clo, ro] = [1, 1, 1];
+      if (exact) {
+        // let date1 = gvs[0][fh];
+        var [fro, clo, ro] = positionWord(wordidx, fh);
+      } else {
+        // found a time scale
+        let date1 = gvsarr[0][fh - 1];
+        let date2 = gvsarr[0][fh];
+        let ddate = date - date1;
+        console.assert(ddate <= date2, `Dates not in range ${date1} ${date} ${date2}`);
+        let dfrac = ddate / (date2 - date1);
+        dfrac = (dfrac < 0.3) ? 0 : (dfrac < 0.7 ? (dfrac - 0.3) / 0.4 : 1); // NON-linear interpolation. 
+        // means that it stays at the endpoints - 0 & 1 - for longer so it's easier to see what the IPA symbols are.
+        // akin to a tanh function - it's a nonlinearity
+        let [fro1, clo1, ro1] = positionWord(wordidx, fh - 1);
+        let [fro2, clo2, ro2] = positionWord(wordidx, fh);
+        var [fro, clo, ro] = [fro1 + (fro2 - fro1) * dfrac, clo1 + (clo2 - clo1) * dfrac, ro1 + (ro2 - ro1) * dfrac];
+      }
+      let focus = focii[wordidx - 1];
+      focus.setPos(fro, clo, ro); // TODO give focus a setChar()
+      // TODO diphthongs just totally absent. make diphthongs
+      focus.date = date;
+      focus.update();
     } else {
-      // found a time scale
-      let date1 = gvsarr[0][fh-1];
-      let date2 = gvsarr[0][fh];
-      let ddate = date - date1;
-      console.assert(ddate <= date2, `Dates not in range ${date1} ${date} ${date2}`);
-      let dfrac = ddate / (date2 - date1);
-      let [fro1, clo1, ro1] = positionWord(wordidx, fh-1);
-      let [fro2, clo2, ro2] = positionWord(wordidx, fh);
-      var [fro, clo, ro] = [fro1 + (fro2-fro1) * dfrac, clo1 + (clo2 - clo1) * dfrac, ro1 + (ro2-ro1) * dfrac];
+      throw new TypeError(`date ${date} outside of expected time range?`);
     }
-    let focus = focii[wordidx - 1];
-    focus.setPos(fro, clo, ro); // TODO give focus a setChar()
-    // TODO diphthongs just totally absent. TODO make diphthongs
-    focus.date = date;
-    focus.update();
-  } else {
-    throw new TypeError(`date ${date} outside of expected time range?`);
+
+
   }
+}
 
-
+function updateWord(date, wordidx) {
+  updateWords(date, wordidx, wordidx + 1);
 }
 function charseqToPos(charseq) {
+      // TODO BIG: finish method for turning complicated strings to idxs like "aː/ɔː" instead of my shortcut of looking at first letter. I'm too lazy to right now
+    // special characters that don't get parsed correctly: '/' 'j'
   charseq = charseq.replace("ː", "");
   charseq = charseq.replace("j", "i");
 
   let result = charset.charToIdx(charseq[0]);
   return result;
+}
+function adjustFocii() {
+  // adjust focii to prevent them from overlapping and being illegible.
+  // mainly do this through a series of dumb hacky fixes.
+  for(let focus of focii) {
+
+  }
 }
