@@ -1,0 +1,38 @@
+OLD gvsUpdate()
+    retn._date = date;
+    if(!gvsdate) {
+    throw new TypeError(`Invalid date ${gvsdate} in update`)
+    }
+    let idx = gvsarr[0].indexOf(""+gvsdate);
+    // idx 0 is purposely a blank so that the table lines up,
+    //but we also need to skip the header everytime so it cancels each other out
+    if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
+    if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
+    if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
+    for(j=1;j<gvsarr.length;j++) {
+    positionWord(j, idx);
+    }
+    focii.date = gvsdate;
+
+OLD gvsUpdateSlide()
+  let slider = document.getElementById("gvs-slide");
+  let date = slider.value;
+    focii.date = date;
+  gvsdate = date;
+  let change = false;
+  if (date >= gvsdate + 50) {
+    while(date >= gvsdate + 50) {
+      gvsdate += 50; // go up in increments of 50
+    }
+    change = true;
+  }
+  else if (date <= gvsdate - 50) {
+    while(date <= gvsdate - 50) {
+      gvsdate -= 50;
+    }
+    change = true;
+  }
+  if(change) {
+  document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
+    gvsUpdate(gvsdate);
+  }

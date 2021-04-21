@@ -554,7 +554,7 @@ function positionWord(wordidx, dateidx) {
 
 }
 const gvspos = function() {
-  let retn = Array(15);
+  let retn = Array(gvsarr.length);
   for (let i=0;i<gvsarr.length;i++) {
     let line = gvsarr[i];
     retn[i] = Array(line.length);
@@ -571,14 +571,51 @@ const gvspos = function() {
   }
   return retn;
 }();
-const gvssquished = function() { // at a given idx, explain whether to hide the dates to make more room so divs don't overlap
-  let ret = Array(15);
-  for(let i=1;i<gvspos.length;i++) {
-    for(let j=1;j<gvspos[i].length;j++) {
-      
-    }
+const _squished = function () { // at a given idx, explain whether to hide the dates to make more room so divs don't overlap
+  let squisharr = Array(gvsarr.length);
+  let hidearr = Array(gvsarr.length);
+  for (let i = 0; i < gvspos.length; i++) {
+    squisharr[i] = Array(gvsarr[0].length);
+    hidearr[i] = Array(gvsarr[0].length);
   }
+  let tape = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1];
+  for (let j = 1; j < gvspos[0].length; j++) {
+    // let key = "" + gvspos[i][j];
+    let occupied = {}; // iterate in the perpendicular direction
+    let occupiedunr = {};
+    for (let i = 1; i < gvspos.length; i++) {
+      if (!tape[i]) continue; // skip certain ones TODO: encapsulate this and actually make it reasonable
+
+      let key = "" + gvspos[i][j];
+      if (key in occupied) {
+        // conflict
+        let [x, y] = occupied[key];
+        let depth = squisharr[x][y];
+        if (depth == 0) depth = 1; // start at 2, because 1 is used for concurrent
+        squisharr[i][j] = depth;
+        squisharr[x][y] = depth + 1; // increment the depth.
+      } else {
+        squisharr[i][j] = 0;
+        occupied[key] = [i, j];
+      }
+
+      let keyunr = ("" + gvspos[i][j]).split(",").slice(0, -1).join(","); // remove the rounded term
+      if(keyunr in occupiedunr) {
+        let [x, y] = occupiedunr[keyunr];
+        hidearr[x][y] = 1;
+        hidearr[i][j] = 1;
+      } else {
+        hidearr[i][j] = 0;
+        occupiedunr[keyunr] = [i, j];
+      }
+    }
+
+  }
+
+  return [squisharr, hidearr];
 }();
+const gvsoverlap = _squished[0];
+const gvssquished = _squished[1];
 function positionWordCached(wordidx, dateidx) {
   if (wordidx <= 0 || dateidx <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${wordidx} dateidx=${dateidx} ${gvsarr[wordidx]}`);
 
@@ -596,10 +633,11 @@ class Focus {
     // this.queryid = "." + this.classid.replace(" ", ".");
     this.hidden = false;
     this.subordinating = "";
+    this.showdate = true; // hide date
     this.embed();
   }
   fullLabel() {
-    return this.hidden ? "" : this.lbl + this.subordinating + (this.date ? ` (${this.date})`:"");
+    return this.hidden ? "" : this.lbl + this.subordinating + (this.date && this.showdate ? ` (${this.date})`:"");
     // return this.hidden ? "" : this.lbl + "  "; // remove the date because it takes up valuable space
   }
   embed(parent) {
@@ -678,7 +716,8 @@ const focii = function() {
       return retn._date;
     },
     set: function(date) {
-      return gvsUpdate(this, date);
+      document.getElementById("gvs-date-display").innerText = "(" + date + ")"; // indicator
+      return updateWords(date);
     }
   });
   return retn;
@@ -701,51 +740,13 @@ function fociiInit(tape) {
     }
   }
   return;
-  gvsUpdate(1400);
+  //g/vsUpdate(1400);
 }
 var gvsdate=1400;
 function gvsUpdateSlide() {
   let slider = document.getElementById("gvs-slide");
   let date = slider.value;
   focii.date = date;
-  return;
-  // gvsdate = date;
-  // let change = false;
-  // if (date >= gvsdate + 50) {
-  //   while(date >= gvsdate + 50) {
-  //     gvsdate += 50; // go up in increments of 50
-  //   }
-  //   change = true;
-  // }
-  // else if (date <= gvsdate - 50) {
-  //   while(date <= gvsdate - 50) {
-  //     gvsdate -= 50;
-  //   }
-  //   change = true;
-  // }
-  // if(change) {
-  //   // document.getElementsByClassName("indicator")[0].innerHTML = gvsdate;
-  //   gvsUpdate(gvsdate);
-  // }
-}
-function gvsUpdate(focii, gvsdate) {
-  document.getElementById("gvs-date-display").innerText = "(" + gvsdate + ")";
-  updateWords(gvsdate);
-  return;
-  // retn._date = date;
-  // if(!gvsdate) {
-  //   throw new TypeError(`Invalid date ${gvsdate} in update`)
-  // }
-  // let idx = gvsarr[0].indexOf(""+gvsdate);
-  // // idx 0 is purposely a blank so that the table lines up,
-  // //but we also need to skip the header everytime so it cancels each other out
-  // if(gvsdate === 1450 || gvsdate === 1950) return; // these ones are the "fake" ones that don't have a slot in the table
-  // if(idx === -1) throw new TypeError("index not found?" + idx + " " + gvsdate);
-  // if(!(1 <= idx && idx <= 11)) throw new TypeError("bad index? "+ idx + " " + gvsdate);
-  // for(j=1;j<gvsarr.length;j++) {
-  //   positionWord(j, idx);
-  // }
-  // focii.date = gvsdate;
 }
 
 function updateWords(date, idxStart, idxEnd) {
@@ -765,6 +766,11 @@ function updateWords(date, idxStart, idxEnd) {
   }
   if(idxStart === undefined) idxStart = 0;
   if(idxEnd === undefined) idxEnd = focii.length;
+  // let isBoundaryChange = (focii.date % 50 === 0 || (parseInt(focii.date / 50) !== parseInt(date / 50)));
+  let isBoundaryChange = true;
+  let closestDate = fh;
+  if (date - gvsarr[0][fh] < -25) // if it's actually pretty far
+    closestDate--;
   for (let i = idxStart; i < idxEnd; i++) {
     // focus.date = num;
     // focus.update();
@@ -793,7 +799,15 @@ function updateWords(date, idxStart, idxEnd) {
       focus.setPos(fro, clo, ro); // TODO give focus a setChar()
       // TODO diphthongs just totally absent. make diphthongs
       focus.date = date;
+      // TODO only update this on date boundary changes.
       focus.update();
+      if(isBoundaryChange) {
+        if (_squished[1][wordidx][closestDate]) {
+          focus.showdate = false;
+        } else {
+          focus.showdate = true;
+        }
+      }
     } else {
       throw new TypeError(`date ${date} outside of expected time range?`);
     }
@@ -817,6 +831,7 @@ function charseqToPos(charseq) {
 function adjustFocii() {
   // adjust focii to prevent them from overlapping and being illegible.
   // mainly do this through a series of dumb hacky fixes.
+  // optimization only do this date on changes
   for(let focus of focii) {
 
   }
