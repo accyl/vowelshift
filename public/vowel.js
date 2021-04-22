@@ -455,7 +455,7 @@ function updateSliderHover() {
 
 }
 function createTable(tableData, src, classname) { // https://stackoverflow.com/questions/15164655/generate-html-table-from-2d-javascript-array
-  if (tableData === undefined) tableData = gvsarr;
+  if (tableData === undefined) tableData = gvsraw;
   if (classname === undefined) classname = "tbl-bin";
   if (src === undefined) src = document.getElementsByClassName("defaultbin")[0];// document.body;
   var table = document.createElement('table');
@@ -499,8 +499,8 @@ dew,ɛu̯,eːu̯,iu̯,i̯uː,.,.,.,.,.,.,/
 that,a,.,.,æ,.,.,.,.,.,.,æ
 fox,o̞,.,.,ɔ/ɒ,.,.,.,.,.,.,ɒ
 cut,ʊ,.,.,ɤ,.,.,ʌ̈,.,.,.,ʌ`;
-const gvsarr = function() {
-  let retn = Array(15);
+const gvsraw = function() {
+  let retn = Array(16);
   let it = 0;
   for(let line of gvs_str.split("\n")) {
     retn[it] = line.split(",");
@@ -508,12 +508,24 @@ const gvsarr = function() {
   }
   return retn;
 }();
+const gvsarr = function() {
+  let retn = Array(15);
+  let i = -1;
+  for (let line of gvs_str.split("\n")) {
+    if(i >= 0) {
+      retn[i] = line.split(",").slice(1);
+    }
+    i++;
+  }
+  return retn;
+}();
+const gvsdates = gvsraw[0].slice(1);
 function positionWord(wordidx, dateidx) {
   // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
   // TODO cache this into an EffectiveTable :tm:
   let j = wordidx;
   let k = dateidx;
-  if (k <= 0 || j <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${j} dateidx=${k} ${gvsarr[j]}`);
+  // if (k <= 0 || j <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${j} dateidx=${k} ${gvsarr[j]}`);
 
   let arr = gvsarr[j];
   let sound = arr[k];
@@ -524,7 +536,7 @@ function positionWord(wordidx, dateidx) {
       // What I think I have to do is if I see a dot I have to go back and
       // until there is a non-dot one.
       k--;
-      if (k < 1) {
+      if (k < 0) {
         throw new TypeError("there's a dot where there shouldn't be? " + arr);
       }
       sound = arr[k];
@@ -559,15 +571,15 @@ const gvspos = function() {
     let line = gvsarr[i];
     retn[i] = Array(line.length);
     let copyline = retn[i];
-    if(i >= 1) {
-      for(let j=0;j<line.length;j++) {
-        if(j >= 1) {
-          copyline[j] = positionWord(i, j); // cache the positions of all the words
-        } else {
-          copyline[j] = undefined;
-        }
-      }
+    // if(i >= 1) {
+    for(let j=0;j<line.length;j++) {
+      // if(j >= 1) {
+      copyline[j] = positionWord(i, j); // cache the positions of all the words
+      // } else {
+        // copyline[j] = undefined;
+      // }
     }
+    // }
   }
   return retn;
 }();
@@ -578,19 +590,19 @@ const _squished = function () { // at a given idx, explain whether to hide the d
     squisharr[i] = Array(gvsarr[0].length);
     hidearr[i] = Array(gvsarr[0].length);
   }
-  let tape = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1];
-  for (let j = 1; j < gvspos[0].length; j++) {
+  let tape = [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1];
+  for (let j = 0; j < gvspos[0].length; j++) {
     // let key = "" + gvspos[i][j];
     let occupied = {}; // iterate in the perpendicular direction
     let occupiedunr = {};
-    for (let i = 1; i < gvspos.length; i++) {
+    for (let i = 0; i < gvspos.length; i++) {
       if (!tape[i]) continue; // skip certain ones TODO: encapsulate this and actually make it reasonable
 
       let key = "" + gvspos[i][j];
       if (key in occupied) {
         // conflict
         let [x, y] = occupied[key];
-        let depth = squisharr[x][y];
+        let depth = squisharr[x][y]; // TODO reimplement stashed changes - instead of depth, store wordidx here
         if (depth == 0) depth = 1; // start at 2, because 1 is used for concurrent
         squisharr[i][j] = depth;
         squisharr[x][y] = depth + 1; // increment the depth.
@@ -617,8 +629,8 @@ const _squished = function () { // at a given idx, explain whether to hide the d
 const gvsoverlap = _squished[0];
 const gvssquished = _squished[1];
 function positionWordCached(wordidx, dateidx) {
-  if (wordidx <= 0 || dateidx <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${wordidx} dateidx=${dateidx} ${gvsarr[wordidx]}`);
-
+  // if (wordidx <= 0 || dateidx <= 0) throw new TypeError(`You got the indices mixed up. positionWord() relies on indices of the big gvsarr, which has headers that take up index 0. Thus start your indexes at 1 (eww), or add 1 to whatever index you have.? wordidx=${wordidx} dateidx=${dateidx} ${gvsarr[wordidx]}`);
+  if(wordidx < 0 || dateidx < 0 || wordidx >= gvsarr.length || dateidx >= gvsarr[0].length) throw new TypeError("Out of bounds "+ wordidx + " " + dateidx);
   return gvspos[wordidx][dateidx];
 }
 class Focus {
@@ -726,8 +738,8 @@ function fociiInit(tape) {
   // focii.push(new Focus('house', 0, 3, 1, 1400));
   // focii.push(new Focus('name', 2, 0, 0, 1400));
   // focii.push(new Focus('dew', 2, 1, 0, 1400));
-  for(let i=1;i<gvsarr.length;i++) {
-    let word = gvsarr[i][0];
+  for(let i=0;i<gvsarr.length;i++) {
+    let word = gvsraw[i+1][0]; // TODO turn this into a normal header
     focii.push(new Focus(word, 0, 0, 0, -1));
   }
   focii.date = 1400;
@@ -752,39 +764,40 @@ function gvsUpdateSlide() {
 function updateWords(date, idxStart, idxEnd) {
   // TODO This code needs to be VERY performant because it is run a ridiculous number of times - 
   // Interpolation
-  let fh = -1;
+  let fh = -10;
   let exact = false;
-  for (let i = 0; i < gvsarr[0].length; i++) {
-    if (gvsarr[0][i] == date) {
+  for (let i = 0; i < gvsdates.length; i++) {
+    if (gvsdates[i] == date) { // TODO reformat gvsraw[0] to gvsdates
       exact = true;
       fh = i;
       break;
-    } else if (gvsarr[0][i] > date) {
+    } else if (gvsdates[i] > date) {
       fh = i;
       break;
     }
   }
+  let closestDate = fh;
+  if (date - gvsdates[fh] < -25) // if it's actually pretty far
+    closestDate--;
   if(idxStart === undefined) idxStart = 0;
   if(idxEnd === undefined) idxEnd = focii.length;
   // let isBoundaryChange = (focii.date % 50 === 0 || (parseInt(focii.date / 50) !== parseInt(date / 50)));
   let isBoundaryChange = true;
-  let closestDate = fh;
-  if (date - gvsarr[0][fh] < -25) // if it's actually pretty far
-    closestDate--;
+
   for (let i = idxStart; i < idxEnd; i++) {
     // focus.date = num;
     // focus.update();
     // updateWord(i + 1, gvsdate);
-    let wordidx = i + 1; // for some reason I started wordidxs off at 1 because of the weird header offset
-    if (fh !== -1) {
+    let wordidx = i;// off-by-one is fixed by removing the headers + 1; // for some reason I started wordidxs off at 1 because of the weird header offset
+    if (fh !== -10) {
       var [fro, clo, ro] = [1, 1, 1];
       if (exact) {
         // let date1 = gvs[0][fh];
         var [fro, clo, ro] = positionWordCached(wordidx, fh);
       } else {
         // found a time scale
-        let date1 = gvsarr[0][fh - 1];
-        let date2 = gvsarr[0][fh];
+        let date1 = gvsdates[fh - 1];
+        let date2 = gvsdates[fh];
         let ddate = date - date1;
         console.assert(ddate <= date2, `Dates not in range ${date1} ${date} ${date2}`);
         let dfrac = ddate / (date2 - date1);
@@ -795,7 +808,7 @@ function updateWords(date, idxStart, idxEnd) {
         let [fro2, clo2, ro2] = positionWordCached(wordidx, fh);
         var [fro, clo, ro] = [fro1 + (fro2 - fro1) * dfrac, clo1 + (clo2 - clo1) * dfrac, ro1 + (ro2 - ro1) * dfrac];
       }
-      let focus = focii[wordidx - 1];
+      let focus = focii[wordidx];
       focus.setPos(fro, clo, ro); // TODO give focus a setChar()
       // TODO diphthongs just totally absent. make diphthongs
       focus.date = date;
